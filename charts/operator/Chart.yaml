@@ -1,0 +1,9 @@
+apiVersion: v2
+dependencies:
+  - name: common
+    repository: file://../common
+    version: 0.1.0
+description: Generic Operator Chart
+name: operator
+type: application
+version: 0.1.0

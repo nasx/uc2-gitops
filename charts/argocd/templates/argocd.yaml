@@ -1,0 +1,118 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ template "common.names.namespace" $ }}
+spec:
+  controller:
+    processors:
+      operation: 4
+      status: 4
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2048Mi
+      requests:
+        cpu: 500m
+        memory: 1024Mi
+    sharding:
+      enabled: true
+      replicas: 4
+  dex:
+    openShiftOAuth: true
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  grafana:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  ha:
+    enabled: true
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  initialSSHKnownHosts: {}
+  prometheus:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  rbac:
+    defaultPolicy: ""
+    policy: |
+      g, system:cluster-admins, role:admin
+      g, cluster-admins, role:admin
+    scopes: '[groups]'
+  redis:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  repo:
+    replicas: 2
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2048Mi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  resourceCustomizations: |
+    route.openshift.io/Route:
+      ignoreDifferences: |
+        jsonPointers:
+        - /spec/host
+    apps/Deployment:
+      ignoreDifferences: |
+        jsonPointers:
+        - /spec/template/spec/containers/0/image
+    apps.openshift.io/DeploymentConfig:
+      ignoreDifferences: |
+        jsonPointers:
+        - /spec/template/spec/containers/0/image
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      kinds:
+      - PipelineRun
+  server:
+    autoscale:
+      enabled: false
+    grpc:
+      ingress:
+        enabled: false
+    ingress:
+      enabled: true
+    replicas: 2
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2048Mi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+    route:
+      enabled: true
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: reencrypt
+    service:
+      type: ""
+  statusBadgeEnabled: true
+  tls:
+    ca: {}

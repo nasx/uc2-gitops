@@ -1,0 +1,15 @@
+apiVersion: v2
+dependencies:
+  - name: application-manager
+    repository: file://../application-manager
+    version: 0.1.0
+  - name: common
+    repository: file://../common
+    version: 0.1.0
+  - name: namespace
+    repository: file://../namespace
+    version: 0.1.0
+description: Bootstrap Helm Chart
+name: template
+type: application
+version: 0.1.0

@@ -1,0 +1,21 @@
+{{- if .Values.operatorgroup.create }}
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+{{- if .Values.operatorgroup.annotations }}
+  annotations:
+    {{- toYaml .Values.operatorgroup.annotations | nindent 4 }}
+{{- end }}
+  generateName: {{ template "common.names.fullname" . }}-
+  labels:
+    {{- include "common.labels.labels" . | nindent 4 }}
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ template "common.names.namespace" $ }}
+{{- if .Values.operatorgroup.clusterScope }}
+spec: {}
+{{- else }}
+spec:
+  targetNamespaces:
+    - {{ template "common.names.namespace" . }}
+{{- end }}
+{{- end }}

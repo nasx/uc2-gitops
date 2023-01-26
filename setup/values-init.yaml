@@ -1,0 +1,23 @@
+---
+# OpenShift GitOps
+config:
+  env:
+    - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+      value: "uc2-gitops"
+    - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
+      value: "true"
+operator:
+  channel: stable
+  installPlanApproval: Automatic
+  name: openshift-gitops-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+operatorgroup:
+  create: false
+
+# Initial Namespace Setup
+namespaces:
+  - annotations:
+      openshift.io/description: UC2 GitOps Resources
+      openshift.io/display-name: UC2 GitOps
+    name: uc2-gitops

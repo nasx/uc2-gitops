@@ -1,0 +1,9 @@
+argocd:
+  project: default
+  retry:
+    backoff:
+      duration: 5s
+      factor: 2
+      maxDuration: 3m
+    limit: -1
+  server: https://kubernetes.default.svc
