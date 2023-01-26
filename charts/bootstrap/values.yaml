@@ -9,7 +9,7 @@ application-manager:
     repoURL: https://github.com/nasx/uc2-gitops.git
     targetRevision: main
     namespace: uc2-gitops
-    project: uc2-gitops
+    project: cluster-config
     destinationNamespace: uc2-gitops
     prune: true
     selfHeal: true
@@ -23,7 +23,7 @@ application-manager:
           repoURL: https://github.com/nasx/uc2-gitops.git
           targetRevision: main
           namespace: uc2-gitops
-          project: uc2-gitops
+          project: cluster-config
           destinationNamespace: uc2-gitops
           prune: true
           selfHeal: true
@@ -40,7 +40,7 @@ application-manager:
                 repoURL: https://github.com/nasx/uc2-gitops.git
                 targetRevision: main
                 namespace: uc2-gitops
-                project: uc2-gitops
+                project: cluster-config
                 destinationNamespace: uc2-gitops
                 prune: true
                 selfHeal: true
@@ -74,7 +74,7 @@ application-manager:
                       repoURL: https://github.com/nasx/uc2-gitops.git
                       targetRevision: main
                       namespace: uc2-gitops
-                      project: uc2-gitops
+                      project: cluster-config
                       destinationNamespace: uc2-gitops
                       prune: true
                       selfHeal: true
