@@ -1,0 +1,31 @@
+{{ range .Values.clusterrole }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  {{- if .annotations }}
+  annotations:
+    {{- tpl (toYaml .annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if .labels }}
+    {{- tpl (toYaml .labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ .name }}
+rules:
+  {{- range .rules }}
+  - apiGroups:
+    {{- range .apiGroups }}
+      - {{ . | quote }}
+    {{- end }}
+    resources:
+    {{- range .resources }}
+      - {{ . }}
+    {{- end }}
+    verbs:
+    {{- range .verbs }}
+      - {{ . }}
+    {{- end }}
+  {{ end }}
+{{ end }}

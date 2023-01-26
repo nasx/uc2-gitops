@@ -59,6 +59,10 @@ application-manager:
                           openshift.io/display-name: Red Hat CoP Patch Operator
                         labels:
                           openshift.io/cluster-monitoring: "true"
+                      - name: patch-operator-configs
+                        annotations:
+                          openshift.io/description: Collection of service accounts and patch resources for the Patch Operator
+                          openshift.io/display-name: Red Hat CoP Patch Operator Configs
                       - name: group-sync-operator
                         annotations:
                           openshift.io/description: Synchronizes groups from external providers into OpenShift
@@ -96,7 +100,7 @@ application-manager:
                           operatorgroup:
                             create: true
                       group-sync-operator:
-                        name: pipelines-operator
+                        name: group-sync-operator
                         path: charts/operator
                         annotations:
                           argocd.argoproj.io/sync-wave: "1"
@@ -109,3 +113,16 @@ application-manager:
                             sourceNamespace: openshift-marketplace
                           operatorgroup:
                             create: true
+                # Deploy RBAC
+                rbac:
+                  name: rbac
+                  path: charts/rbac
+                  values:
+                    common:
+                      repoURL: https://github.com/nasx/uc2-gitops.git
+                      targetRevision: main
+                      namespace: uc2-gitops
+                      project: cluster-config
+                      destinationNamespace: uc2-gitops
+                      prune: true
+                      selfHeal: true

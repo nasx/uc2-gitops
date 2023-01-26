@@ -1,0 +1,17 @@
+{{- range .Values.sa -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+{{- if .annotations }}
+  annotations:
+    {{- tpl (toYaml .annotations) $ | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+{{- if .labels }}
+    {{- tpl (toYaml .labels) $ | nindent 4 }}
+{{- end }}
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+{{ end }}
