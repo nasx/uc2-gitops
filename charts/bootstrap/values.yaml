@@ -59,7 +59,7 @@ application-manager:
                           openshift.io/display-name: Red Hat CoP Patch Operator
                         labels:
                           openshift.io/cluster-monitoring: "true"
-                      - name: patch-operator-configs
+                      - name: patch-operator-config
                         annotations:
                           openshift.io/description: Collection of service accounts and patch resources for the Patch Operator
                           openshift.io/display-name: Red Hat CoP Patch Operator Configs
