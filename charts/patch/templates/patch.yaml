@@ -1,0 +1,30 @@
+{{- range $.Values.patches }}
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: Patch
+metadata:
+  {{- if .annotations }}
+  annotations:
+    {{- tpl (toYaml .annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if .labels }}
+    {{- tpl (toYaml .labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+  patches:
+    {{- range .patches }}
+    {{ .name }}:
+      patchTemplate: |
+{{ .patchTemplate | indent 8 -}}
+      patchType: {{ .patchType }}
+      targetObjectRef:
+        apiVersion: {{ .targetObjectRef.apiVersion }}
+        kind: {{ .targetObjectRef.kind }}
+        name: {{ .targetObjectRef.name }}
+    {{- end }}
+  serviceAccountRef:
+    name: {{ .sa }}
+{{ end }}

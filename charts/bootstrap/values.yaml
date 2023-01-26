@@ -143,3 +143,20 @@ application-manager:
                       destinationNamespace: uc2-gitops
                       prune: true
                       selfHeal: true
+                # Configure Node Labels
+                alice-node-labels:
+                  name: alice-node-labels
+                  path: charts/patch
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "2"
+                  values:
+                    common:
+                      repoURL: https://github.com/nasx/uc2-gitops.git
+                      targetRevision: main
+                      namespace: uc2-gitops
+                      project: cluster-config
+                      destinationNamespace: uc2-gitops
+                      prune: true
+                      selfHeal: true
+                  valueFiles:
+                    - values/alice-node-labels.yaml
