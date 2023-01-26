@@ -117,6 +117,23 @@ application-manager:
                 rbac:
                   name: rbac
                   path: charts/rbac
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "0"
+                  values:
+                    common:
+                      repoURL: https://github.com/nasx/uc2-gitops.git
+                      targetRevision: main
+                      namespace: uc2-gitops
+                      project: cluster-config
+                      destinationNamespace: uc2-gitops
+                      prune: true
+                      selfHeal: true
+                # Deploy MachineConfigPool Resources
+                mcp:
+                  name: mcp
+                  path: charts/mcp
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "0"
                   values:
                     common:
                       repoURL: https://github.com/nasx/uc2-gitops.git
