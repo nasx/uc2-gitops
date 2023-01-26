@@ -159,4 +159,4 @@ application-manager:
                       prune: true
                       selfHeal: true
                   valueFiles:
-                    - values/alice-node-labels.yaml
+                    - ../../values/alice-node-labels.yaml
