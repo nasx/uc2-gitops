@@ -18,7 +18,7 @@ spec:
     {{- range .patches }}
     {{ .name }}:
       patchTemplate: |
-{{ .patchTemplate | indent 8 -}}
+{{ .patchTemplate | indent 8 }}
       patchType: {{ .patchType }}
       targetObjectRef:
         apiVersion: {{ .targetObjectRef.apiVersion }}

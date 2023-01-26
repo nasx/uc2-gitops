@@ -5,7 +5,7 @@ patches:
     sa: patch-operator-node
     patches:
       - name: infra0-patch
-        patchTemplate: |
+        patchTemplate: |-
           metadata:
             labels:
               node-role.kubernetes.io/infra: ""
@@ -16,7 +16,7 @@ patches:
           kind: Node
           name: infra0.alice.lab.uc2.io
       - name: infra1-patch
-        patchTemplate: |
+        patchTemplate: |-
           metadata:
             labels:
               node-role.kubernetes.io/infra: ""
@@ -27,7 +27,7 @@ patches:
           kind: Node
           name: infra1.alice.lab.uc2.io
       - name: infra2-patch
-        patchTemplate: |
+        patchTemplate: |-
           metadata:
             labels:
               node-role.kubernetes.io/infra: ""
@@ -38,7 +38,7 @@ patches:
           kind: Node
           name: infra2.alice.lab.uc2.io
       - name: odf0-patch
-        patchTemplate: |
+        patchTemplate: |-
           metadata:
             labels:
               cluster.ocs.openshift.io/openshift-storage: ""
@@ -50,7 +50,7 @@ patches:
           kind: Node
           name: odf0.alice.lab.uc2.io
       - name: odf1-patch
-        patchTemplate: |
+        patchTemplate: |-
           metadata:
             labels:
               cluster.ocs.openshift.io/openshift-storage: ""
@@ -62,7 +62,7 @@ patches:
           kind: Node
           name: odf1.alice.lab.uc2.io
       - name: odf2-patch
-        patchTemplate: |
+        patchTemplate: |-
           metadata:
             labels:
               cluster.ocs.openshift.io/openshift-storage: ""
