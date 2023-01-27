@@ -24,6 +24,9 @@ spec:
         apiVersion: {{ .targetObjectRef.apiVersion }}
         kind: {{ .targetObjectRef.kind }}
         name: {{ .targetObjectRef.name }}
+        {{- if .namespace }}
+        namespace: {{ .namespace }}
+        {{- end }}
     {{- end }}
   serviceAccountRef:
     name: {{ .sa }}
