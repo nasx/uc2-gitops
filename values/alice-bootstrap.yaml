@@ -214,3 +214,20 @@ application-manager:
                       selfHeal: true
                   valueFiles:
                     - ../../values/alice-oauth.yaml
+                # Configure OpenShift APIServer
+                apiserver:
+                  name: apiserver
+                  path: charts/patch
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "3"
+                  values:
+                    common:
+                      repoURL: https://github.com/nasx/uc2-gitops.git
+                      targetRevision: main
+                      namespace: uc2-gitops
+                      project: cluster-config
+                      destinationNamespace: uc2-gitops
+                      prune: true
+                      selfHeal: true
+                  valueFiles:
+                    - ../../values/alice-apiserver.yaml
