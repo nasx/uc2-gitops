@@ -1,0 +1,22 @@
+---
+patches:
+  - name: ingress-controller-patch
+    namespace: patch-operator-config
+    sa: patch-operator-ingress
+    patches:
+      - name: ingress-controller-patch
+        patchTemplate: |-
+          spec:
+            replicas: 3
+            defaultCertificate:
+              name: wildcard-cert
+            nodePlacement:
+              nodeSelector:
+                matchLabels:
+                  node-role.kubernetes.io/infra: ""
+        patchType: application/merge-patch+json
+        targetObjectRef:
+          apiVersion: operator.openshift.io/v1
+          kind: IngressController
+          name: default
+          namespace: openshift-ingress-operator

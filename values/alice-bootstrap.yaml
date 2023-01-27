@@ -184,3 +184,20 @@ application-manager:
                       selfHeal: true
                   valueFiles:
                     - ../../values/alice-sealed-secrets.yaml
+                # Configure Ingress Controller
+                ingress-controller:
+                  name: ingress-controller
+                  path: charts/patch
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "3"
+                  values:
+                    common:
+                      repoURL: https://github.com/nasx/uc2-gitops.git
+                      targetRevision: main
+                      namespace: uc2-gitops
+                      project: cluster-config
+                      destinationNamespace: uc2-gitops
+                      prune: true
+                      selfHeal: true
+                  valueFiles:
+                    - ../../values/alice-ingress-controller.yaml
