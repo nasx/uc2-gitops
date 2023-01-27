@@ -51,3 +51,16 @@ bootstrap:
       users:
         - chris
         - juanjo
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: image-registry-storage
+        namespace: openshift-image-registry
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: thin
+        volumeMode: Filesystem

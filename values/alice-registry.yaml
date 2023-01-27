@@ -1,0 +1,23 @@
+---
+patches:
+  - name: registry-patch
+    namespace: patch-operator-config
+    sa: patch-operator-registry
+    patches:
+      - name: registry-patch
+        patchTemplate: |-
+          spec:
+            defaultRoute: true
+            managementState: Managed
+            nodeSelector:
+              node-role.kubernetes.io/infra: ""
+            replicas: 1
+            rolloutStrategy: Recreate
+            storage:
+              pvc:
+                claim: registry-shared-storage
+        patchType: application/merge-patch+json
+        targetObjectRef:
+          apiVersion: imageregistry.operator.openshift.io/v1
+          kind: Config
+          name: cluster
