@@ -98,6 +98,7 @@ application-manager:
                             source: community-operators
                             sourceNamespace: openshift-marketplace
                           operatorgroup:
+                            clusterscope: true
                             create: true
                       group-sync-operator:
                         name: group-sync-operator
@@ -112,6 +113,7 @@ application-manager:
                             source: community-operators
                             sourceNamespace: openshift-marketplace
                           operatorgroup:
+                            clusterscope: true
                             create: true
                 # Deploy RBAC
                 rbac:
