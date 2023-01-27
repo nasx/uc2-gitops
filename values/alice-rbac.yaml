@@ -115,7 +115,7 @@ clusterrolebinding:
         name: patch-operator-registry
         namespace: patch-operator-config
   - name: cluster-admin-users
-    role: cluster-admins
+    role: cluster-admin
     subjects:
       - kind: Group
         name: cluster-admins
