@@ -1,0 +1,9 @@
+apiVersion: v2
+name: sealed-secret
+description: Chart to Deploy Sealed Secret Resources
+type: application
+version: 0.1.0
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../common

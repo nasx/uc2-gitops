@@ -167,3 +167,20 @@ application-manager:
                       selfHeal: true
                   valueFiles:
                     - ../../values/alice-node-labels.yaml
+                # Deploy Sealed Secrets
+                sealed-secrets:
+                  name: sealed-secrets
+                  path: charts/sealed-secret
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "0"
+                  values:
+                    common:
+                      repoURL: https://github.com/nasx/uc2-gitops.git
+                      targetRevision: main
+                      namespace: uc2-gitops
+                      project: cluster-config
+                      destinationNamespace: uc2-gitops
+                      prune: true
+                      selfHeal: true
+                  valueFiles:
+                    - ../../values/alice-sealed-secrets.yaml
