@@ -15,7 +15,7 @@ patches:
             rolloutStrategy: Recreate
             storage:
               pvc:
-                claim: registry-shared-storage
+                claim: image-registry-storage
         patchType: application/merge-patch+json
         targetObjectRef:
           apiVersion: imageregistry.operator.openshift.io/v1
