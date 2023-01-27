@@ -197,3 +197,20 @@ application-manager:
                       selfHeal: true
                   valueFiles:
                     - ../../values/alice-ingress-controller.yaml
+                # Configure OpenShift OAuth
+                oauth:
+                  name: oauth
+                  path: charts/patch
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "3"
+                  values:
+                    common:
+                      repoURL: https://github.com/nasx/uc2-gitops.git
+                      targetRevision: main
+                      namespace: uc2-gitops
+                      project: cluster-config
+                      destinationNamespace: uc2-gitops
+                      prune: true
+                      selfHeal: true
+                  valueFiles:
+                    - ../../values/alice-oauth.yaml
