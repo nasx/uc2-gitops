@@ -22,6 +22,8 @@ subjects:
   {{- range .subjects }}
   - kind: {{ .kind }}
     name: {{ .name }}
+  {{- if .namespace }}
     namespace: {{ .namespace }}
+  {{- end }}
   {{ end }}
 {{ end }}
