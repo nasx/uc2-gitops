@@ -1,8 +1,4 @@
 ---
-# Raw Manifests
-bootstrap:
-  raw: []
-
 # Dynamically Generated Charts
 application-manager:
   common:

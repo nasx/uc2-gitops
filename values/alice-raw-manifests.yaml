@@ -1,0 +1,46 @@
+# Raw Manifests
+bootstrap:
+  raw:
+    - apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: oauth-ldap-ca-config-map
+        namespace: openshift-config
+      data:
+        ca.crt: |
+          -----BEGIN CERTIFICATE-----
+          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
+          MBHbJ+an3A==
+          -----END CERTIFICATE-----
