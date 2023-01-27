@@ -114,3 +114,8 @@ clusterrolebinding:
       - kind: ServiceAccount
         name: patch-operator-registry
         namespace: patch-operator-config
+  - name: cluster-admin-users
+    role: cluster-admins
+    subjects:
+      - kind: Group
+        name: cluster-admins

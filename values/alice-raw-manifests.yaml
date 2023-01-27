@@ -44,3 +44,10 @@ bootstrap:
           +NPjvtiRT2yOnYHOtOF9h2UkuC0fwwdmfonqj2DCCdqF+rbO3gXDZExE2+CtE4Xi
           MBHbJ+an3A==
           -----END CERTIFICATE-----
+    - apiVersion: user.openshift.io/v1
+      kind: Group
+      metadata:
+        name: cluster-admins
+      users:
+        - chris
+        - juanjo
