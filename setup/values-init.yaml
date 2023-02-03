@@ -3,7 +3,7 @@
 config:
   env:
     - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
-      value: "uc2-gitops"
+      value: "management-stack-gitops"
     - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
       value: "true"
 operator:
@@ -18,6 +18,6 @@ operatorgroup:
 # Initial Namespace Setup
 namespaces:
   - annotations:
-      openshift.io/description: UC2 GitOps Resources
-      openshift.io/display-name: UC2 GitOps
-    name: uc2-gitops
+      openshift.io/description: Management Stack GitOps Resources
+      openshift.io/display-name: Management Stack GitOps Resources
+    name: management-stack-gitops

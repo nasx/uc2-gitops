@@ -4,247 +4,230 @@ application-manager:
   common:
     repoURL: https://github.com/nasx/uc2-gitops.git
     targetRevision: main
-    namespace: uc2-gitops
+    namespace: management-stack-gitops
     project: cluster-config
-    destinationNamespace: uc2-gitops
+    destinationNamespace: management-stack-gitops
     prune: true
     selfHeal: true
   charts:
     # Top Level Nested App of Apps Chart
-    cluster-baseline:
-      name: alice
+    cluster-configs:
+      name: cluster-configs
       path: charts/application-manager
       values:
         common:
           repoURL: https://github.com/nasx/uc2-gitops.git
           targetRevision: main
-          namespace: uc2-gitops
+          namespace: management-stack-gitops
           project: cluster-config
-          destinationNamespace: uc2-gitops
+          destinationNamespace: management-stack-gitops
           prune: true
           selfHeal: true
         charts:
-          # Cluster Configuration App of Apps Chart
-          cluster-configs:
-            name: cluster-configs
-            path: charts/application-manager
+          # Create Namespaces
+          namespaces:
+            name: namespaces
+            path: charts/namespace
             annotations:
               argocd.argoproj.io/sync-wave: "0"
-            destinationNamespace: uc2-gitops
+            values:
+              namespaces:
+                - name: patch-operator
+                  annotations:
+                    openshift.io/description: An operator to apply patches to Kubernetes objects in a declarative way. Provided by Red Hat CoP.
+                    openshift.io/display-name: Red Hat CoP Patch Operator
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
+                - name: patch-operator-config
+                  annotations:
+                    openshift.io/description: Collection of service accounts and patch resources for the Patch Operator
+                    openshift.io/display-name: Red Hat CoP Patch Operator Configs
+                - name: group-sync-operator
+                  annotations:
+                    openshift.io/description: Synchronizes groups from external providers into OpenShift
+                    openshift.io/display-name: Red Hat CoP Group Sync Operator
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
+          # Deploy Operators
+          operators:
+            name: operators
+            path: charts/application-manager
             values:
               common:
                 repoURL: https://github.com/nasx/uc2-gitops.git
                 targetRevision: main
-                namespace: uc2-gitops
+                namespace: management-stack-gitops
                 project: cluster-config
-                destinationNamespace: uc2-gitops
+                destinationNamespace: management-stack-gitops
                 prune: true
                 selfHeal: true
               charts:
-                # Create Namespaces
-                namespaces:
-                  name: namespaces
-                  path: charts/namespace
+                # Operator List
+                patch-operator:
+                  name: patch-operator
+                  path: charts/operator
                   annotations:
-                    argocd.argoproj.io/sync-wave: "0"
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: patch-operator
                   values:
-                    namespaces:
-                      - name: patch-operator
-                        annotations:
-                          openshift.io/description: An operator to apply patches to Kubernetes objects in a declarative way. Provided by Red Hat CoP.
-                          openshift.io/display-name: Red Hat CoP Patch Operator
-                        labels:
-                          openshift.io/cluster-monitoring: "true"
-                      - name: patch-operator-config
-                        annotations:
-                          openshift.io/description: Collection of service accounts and patch resources for the Patch Operator
-                          openshift.io/display-name: Red Hat CoP Patch Operator Configs
-                      - name: group-sync-operator
-                        annotations:
-                          openshift.io/description: Synchronizes groups from external providers into OpenShift
-                          openshift.io/display-name: Red Hat CoP Group Sync Operator
-                        labels:
-                          openshift.io/cluster-monitoring: "true"
-                # Deploy Operators
-                operators:
-                  name: operators
-                  path: charts/application-manager
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                    charts:
-                      # Operator List
-                      patch-operator:
-                        name: patch-operator
-                        path: charts/operator
-                        annotations:
-                          argocd.argoproj.io/sync-wave: "1"
-                        destinationNamespace: patch-operator
-                        values:
-                          operator:
-                            channel: alpha
-                            installPlanApproval: Automatic
-                            name: patch-operator
-                            source: community-operators
-                            sourceNamespace: openshift-marketplace
-                          operatorgroup:
-                            clusterScope: true
-                            create: true
-                      group-sync-operator:
-                        name: group-sync-operator
-                        path: charts/operator
-                        annotations:
-                          argocd.argoproj.io/sync-wave: "1"
-                        destinationNamespace: group-sync-operator
-                        values:
-                          operator:
-                            channel: alpha
-                            installPlanApproval: Automatic
-                            name: group-sync-operator
-                            source: community-operators
-                            sourceNamespace: openshift-marketplace
-                          operatorgroup:
-                            clusterScope: false
-                            create: true
-                # Deploy RBAC
-                rbac:
-                  name: rbac
-                  path: charts/rbac
+                    operator:
+                      channel: alpha
+                      installPlanApproval: Automatic
+                      name: patch-operator
+                      source: community-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: true
+                group-sync-operator:
+                  name: group-sync-operator
+                  path: charts/operator
                   annotations:
-                    argocd.argoproj.io/sync-wave: "0"
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: group-sync-operator
                   values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-rbac.yaml
-                # Deploy MachineConfigPool Resources
-                alice-machine-config-pools:
-                  name: alice-machine-config-pools
-                  path: charts/mcp
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "0"
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-mcp.yaml
-                # Configure Node Labels
-                alice-node-labels:
-                  name: alice-node-labels
-                  path: charts/patch
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "2"
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-node-labels.yaml
-                # Deploy Sealed Secrets
-                sealed-secrets:
-                  name: sealed-secrets
-                  path: charts/sealed-secret
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "0"
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-sealed-secrets.yaml
-                # Configure Ingress Controller
-                ingress-controller:
-                  name: ingress-controller
-                  path: charts/patch
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "3"
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-ingress-controller.yaml
-                # Configure OpenShift OAuth
-                oauth:
-                  name: oauth
-                  path: charts/patch
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "3"
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-oauth.yaml
-                # Configure OpenShift APIServer
-                apiserver:
-                  name: apiserver
-                  path: charts/patch
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "3"
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-apiserver.yaml
-                # Configure Registry
-                registry:
-                  name: registry
-                  path: charts/patch
-                  annotations:
-                    argocd.argoproj.io/sync-wave: "4"
-                  values:
-                    common:
-                      repoURL: https://github.com/nasx/uc2-gitops.git
-                      targetRevision: main
-                      namespace: uc2-gitops
-                      project: cluster-config
-                      destinationNamespace: uc2-gitops
-                      prune: true
-                      selfHeal: true
-                  valueFiles:
-                    - ../../values/alice-registry.yaml
+                    operator:
+                      channel: alpha
+                      installPlanApproval: Automatic
+                      name: group-sync-operator
+                      source: community-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: false
+                      create: true
+          # Deploy RBAC
+          rbac:
+            name: rbac
+            path: charts/rbac
+            annotations:
+              argocd.argoproj.io/sync-wave: "0"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-rbac.yaml
+          # Deploy MachineConfigPool Resources
+          alice-machine-config-pools:
+            name: alice-machine-config-pools
+            path: charts/mcp
+            annotations:
+              argocd.argoproj.io/sync-wave: "0"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-mcp.yaml
+          # Configure Node Labels
+          alice-node-labels:
+            name: alice-node-labels
+            path: charts/patch
+            annotations:
+              argocd.argoproj.io/sync-wave: "2"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-node-labels.yaml
+          # Deploy Sealed Secrets
+          sealed-secrets:
+            name: sealed-secrets
+            path: charts/sealed-secret
+            annotations:
+              argocd.argoproj.io/sync-wave: "0"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-sealed-secrets.yaml
+          # Configure Ingress Controller
+          ingress-controller:
+            name: ingress-controller
+            path: charts/patch
+            annotations:
+              argocd.argoproj.io/sync-wave: "3"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-ingress-controller.yaml
+          # Configure OpenShift OAuth
+          oauth:
+            name: oauth
+            path: charts/patch
+            annotations:
+              argocd.argoproj.io/sync-wave: "3"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-oauth.yaml
+          # Configure OpenShift APIServer
+          apiserver:
+            name: apiserver
+            path: charts/patch
+            annotations:
+              argocd.argoproj.io/sync-wave: "3"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-apiserver.yaml
+          # Configure Registry
+          registry:
+            name: registry
+            path: charts/patch
+            annotations:
+              argocd.argoproj.io/sync-wave: "4"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-registry.yaml
