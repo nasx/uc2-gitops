@@ -253,6 +253,7 @@ application-manager:
               argocd.argoproj.io/sync-wave: "0"
             values:
               namespaces:
+                - name: aap
                 - name: openshift-storage
                   labels:
                     openshift.io/cluster-monitoring: "true"
