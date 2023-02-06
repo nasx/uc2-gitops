@@ -286,7 +286,7 @@ application-manager:
                     operator:
                       channel: release-2.6
                       installPlanApproval: Automatic
-                      name: open-cluster-management
+                      name: advanced-cluster-management
                       source: redhat-operators
                       sourceNamespace: openshift-marketplace
                     operatorgroup:
