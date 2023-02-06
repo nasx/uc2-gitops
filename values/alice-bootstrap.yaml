@@ -276,6 +276,22 @@ application-manager:
                 selfHeal: true
               charts:
                 # Operator List
+                aap-operator:
+                  name: aap-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: aap
+                  values:
+                    operator:
+                      channel: stable-2.3-cluster-scoped
+                      installPlanApproval: Automatic
+                      name: ansible-automation-platform-operator
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: true
                 acm-operator:
                   name: acm-operator
                   path: charts/operator
@@ -290,7 +306,7 @@ application-manager:
                       source: redhat-operators
                       sourceNamespace: openshift-marketplace
                     operatorgroup:
-                      clusterScope: true
+                      clusterScope: false
                       create: true
                 acs-operator:
                   name: acs-operator
@@ -308,3 +324,35 @@ application-manager:
                     operatorgroup:
                       clusterScope: true
                       create: true
+                odf-operator:
+                  name: odf-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-storage
+                  values:
+                    operator:
+                      channel: stable-4.11
+                      installPlanApproval: Automatic
+                      name: odf-operator
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: false
+                      create: true
+                quay-operator:
+                  name: quay-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-operators
+                  values:
+                    operator:
+                      channel: stable-3.8
+                      installPlanApproval: Automatic
+                      name: quay-operator
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: false
