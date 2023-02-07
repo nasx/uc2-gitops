@@ -1,0 +1,41 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  {{- if $.Values.ansible_runner_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.ansible_runner_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.ansible_runner_labels }}
+    {{- tpl (toYaml $.Values.ansible_runner_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.ansible_runner_name }}
+  namespace: {{ $.Values.ansible_runner_namespace }}
+spec:
+  runPolicy: Serial
+  source:
+    type: Dockerfile
+    dockerfile: |
+      FROM {{ $.Values.ansible_runner_base_image }}
+      USER 0
+      RUN dnf update -y && \
+          pip install --upgrade pip && \
+          pip install openshift && \
+          pip install jmespath && \
+          pip install netaddr && \
+          pip install ansible==2.9.* && \
+          curl -sL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar -C /usr/local/bin -xvzf - oc kubectl
+      USER 1001
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: DockerImage
+        name: {{ $.Values.ansible_runner_base_image }}
+  triggers:
+    - type: ConfigChange
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{ $.Values.ansible_runner_image_stream_name }}:latest

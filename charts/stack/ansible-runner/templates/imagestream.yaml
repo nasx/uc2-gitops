@@ -1,0 +1,15 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  {{- if $.Values.ansible_runner_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.ansible_runner_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.ansible_runner_labels }}
+    {{- tpl (toYaml $.Values.ansible_runner_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.ansible_runner_image_stream_name }}
+  namespace: {{ $.Values.ansible_runner_namespace }}
+spec: {}

@@ -254,6 +254,7 @@ application-manager:
             values:
               namespaces:
                 - name: aap
+                - name: ansible-runner
                 - name: open-cluster-management
                   labels:
                     openshift.io/cluster-monitoring: "true"
@@ -371,6 +372,15 @@ application-manager:
                 prune: true
                 selfHeal: true
               charts:
+                # Deploy Custom Ansible Runner
+                ansible-runner:
+                  name: ansible-runner
+                  path: charts/stack/ansible-runner
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: ansible-runner
+                  values:
+                    ansible_runner_debug_pod: true
                 # Deploy OpenShift Data Foundation
                 odf:
                   name: odf

@@ -1,0 +1,12 @@
+apiVersion: v2
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../../common
+  - name: rbac
+    version: 0.1.0
+    repository: file://../../rbac
+description: Build a Custom Ansible Runner Image
+name: ansible-runner
+type: application
+version: 0.1.0

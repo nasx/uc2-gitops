@@ -1,0 +1,74 @@
+---
+ansible_runner_base_image: registry.access.redhat.com/ubi8/python-38
+ansible_runner_debug_pod: true
+ansible_runner_image_stream_name: ansible-runner
+ansible_runner_name: ansible-runner
+ansible_runner_namespace: ansible-runner
+rbac:
+  sa:
+    - name: ansible-runner-sa
+      namespace: ansible-runner
+  clusterrole:
+    - name: ansible-runner-cr
+      rules:
+        - apiGroups:
+            - "*"
+          resources:
+            - pods
+            - services
+            - secrets
+            - configmaps
+          verbs:
+            - "*"
+        - apiGroups:
+            - observability.open-cluster-management.io
+          resources:
+            - multiclusterobservabilities
+          verbs:
+            - "*"
+        - apiGroups:
+            - operator.open-cluster-management.io
+          resources:
+            - multiclusterhubs
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
+            - apps
+            - extensions
+          resources:
+            - deployments
+          verbs:
+            - list
+            - get
+            - watch
+            - update
+            - patch
+        - apiGroups:
+            - config.openshift.io
+          resources:
+            - infrastructures
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
+            - machine.openshift.io
+          resources:
+            - machinesets
+          verbs:
+            - "*"
+        - apiGroups:
+            - objectbucket.io
+          resources:
+            - objectbucketclaims
+          verbs:
+            - "*"
+  clusterrolebinding:
+    - name: ansible-runner-crb
+      role: ansible-runner-cr
+      subjects:
+        - kind: ServiceAccount
+          name: ansible-runner-sa
+          namespace: ansible-runner

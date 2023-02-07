@@ -1,0 +1,27 @@
+{{- if $.Values.ansible_runner_debug_pod }}
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+  {{- if $.Values.ansible_runner_annotations }}
+    {{- tpl (toYaml $.Values.ansible_runner_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.ansible_runner_labels }}
+    {{- tpl (toYaml $.Values.ansible_runner_labels) $ | nindent 4 }}
+  {{- end }}
+  name: ansible-debug-pod
+  namespace: {{ $.Values.ansible_runner_namespace }}
+spec:
+  serviceAccountName: ansible-runner-sa
+  containers:
+    - name: ansible
+      image: image-registry.openshift-image-registry.svc:5000/{{ $.Values.ansible_runner_namespace }}/{{ $.Values.ansible_runner_image_stream_name }}:latest
+      command:
+        - /bin/bash
+        - -c
+        - |
+          sleep infinity
+{{- end }}
