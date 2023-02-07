@@ -3,12 +3,12 @@ kind: StorageCluster
 metadata:
   {{- if $.Values.storagecluster_annotations }}
   annotations:
-    {{- tpl (toYaml $.Values.storagecluster.annotations) $ | nindent 4 }}
+    {{- tpl (toYaml $.Values.storagecluster_annotations) $ | nindent 4 }}
   {{- end }}
   labels:
     {{- include "common.labels.labels" $ | nindent 4 }}
   {{- if $.Values.storagecluster_labels }}
-    {{- tpl (toYaml $.Values.storagecluster.labels) $ | nindent 4 }}
+    {{- tpl (toYaml $.Values.storagecluster_labels) $ | nindent 4 }}
   {{- end }}
   name: {{ $.Values.storagecluster_name }}
   namespace: {{ $.Values.storagecluster_namespace }}
