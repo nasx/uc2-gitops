@@ -21,11 +21,11 @@ rules:
     {{- end }}
     resources:
     {{- range .resources }}
-      - {{ . }}
+      - {{ . | quote }}
     {{- end }}
     verbs:
     {{- range .verbs }}
-      - {{ . }}
+      - {{ . | quote }}
     {{- end }}
-  {{ end }}
-{{ end }}
+  {{- end }}
+{{- end }}
