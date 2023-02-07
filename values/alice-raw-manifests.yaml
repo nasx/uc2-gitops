@@ -68,11 +68,9 @@ bootstrap:
       apiVersion: storage.k8s.io/v1
       kind: StorageClass
       metadata:
-        name: thick-spinning
+        name: pool-spinning-z2-1
       parameters:
         datastoreurl: ds:///vmfs/volumes/2b4c7ed4-7b52d2f0-0000-000000000000/
-        diskformat: zeroedthick
       provisioner: csi.vsphere.vmware.com
       reclaimPolicy: Delete
       volumeBindingMode: WaitForFirstConsumer
-

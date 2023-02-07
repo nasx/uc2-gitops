@@ -380,4 +380,4 @@ application-manager:
                   destinationNamespace: openshift-storage
                   values:
                     storagecluster_storage: 500Gi
-                    storagecluster_storageclass: thick-spinning
+                    storagecluster_storageclass: pool-spinning-z2-1
