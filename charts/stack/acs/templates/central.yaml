@@ -1,0 +1,49 @@
+apiVersion: platform.stackrox.io/v1alpha1
+kind: Central
+metadata:
+  {{- if $.Values.central_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.central_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.central_labels }}
+    {{- tpl (toYaml $.Values.central_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.central_name }}
+  namespace: {{ $.Values.central_namespace }}
+spec:
+  central:
+    {{- if $.Values.central_default_tls_secret_name }}
+    defaultTLSSecret:
+      name: {{ $.Values.central_default_tls_secret_name }}
+    {{- end }}
+    exposure:
+      loadBalancer:
+        enabled: false
+        port: 443
+      nodePort:
+        enabled: false
+      route:
+        enabled: true
+    persistence:
+      persistentVolumeClaim:
+        claimName: {{ $.Values.central_persistent_volume_name }}
+        storageClassName: {{ $.Values.central_persistent_volume_storage_class }}
+  egress:
+    connectivityPolicy: Online
+  scanner:
+    analyzer:
+      scaling:
+        autoScaling: Enabled
+        maxReplicas: 5
+        minReplicas: 2
+        replicas: 3
+    scannerComponent: Enabled
+  {{- if $.Values.central_additional_certificates }}
+  tls:
+    additionalCAs:
+      - content: |
+{{ $.Values.central_additional_certificates | indent 10 }}
+        name: ca-bundle.crt
+  {{- end }}

@@ -1,0 +1,12 @@
+apiVersion: v2
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../../common
+  - name: sealed-secret
+    version: 0.1.0
+    repository: file://../../sealed-secret
+description: Chart to Deploy Red Hat Advanced Cluster Security
+name: acs
+type: application
+version: 0.1.0
