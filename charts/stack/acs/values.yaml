@@ -3,7 +3,6 @@ central_annotations:
   argocd.argoproj.io/compare-options: IgnoreExtraneous
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   argocd.argoproj.io/sync-wave: "3"
-central_default_tls_secret_name: uc2-central-tls
 central_name: stackrox-central-services
 central_namespace: stackrox
 central_persistent_volume_name: stackrox-db
