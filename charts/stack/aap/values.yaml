@@ -1,0 +1,12 @@
+---
+automationcontroller_annotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  argocd.argoproj.io/sync-wave: "3"
+automationcontroller_name: automation-controller
+automationcontroller_namespace: aap
+automationcontroller_postgres_storage_class: ocs-storagecluster-cephfs
+automationcontroller_projects_storage_access_mode: ReadWriteMany
+automationcontroller_projects_storage_class: ocs-storagecluster-cephfs
+automationcontroller_projects_storage_size: 10Gi
+automationcontroller_replicas: 2
+automationcontroller_task_privileged: false

@@ -1,0 +1,28 @@
+apiVersion: automationcontroller.ansible.com/v1beta1
+kind: AutomationController
+metadata:
+  {{- if $.Values.automationcontroller_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.automationcontroller_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.automationcontroller_labels }}
+    {{- tpl (toYaml $.Values.automationcontroller_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.automationcontroller_name }}
+  namespace: {{ $.Values.automationcontroller_namespace }}
+spec:
+  admin_user: admin
+  create_preload_data: true
+  garbage_collect_secrets: false
+  image_pull_policy: IfNotPresent
+  ingress_type: Route
+  projects_persistence: true
+  postgres_storage_class: {{ $.Values.automationcontroller_postgres_storage_class }}
+  projects_storage_access_mode: {{ $.Values.automationcontroller_projects_storage_access_mode }}
+  projects_storage_class: {{ $.Values.automationcontroller_projects_storage_class }}
+  projects_storage_size: {{ $.Values.automationcontroller_projects_storage_size }}
+  replicas: {{ $.Values.automationcontroller_replicas }}
+  route_tls_termination_mechanism: Edge
+  task_privileged: {{ $.Values.automationcontroller_task_privileged }}

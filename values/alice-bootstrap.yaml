@@ -371,7 +371,7 @@ application-manager:
                 prune: true
                 selfHeal: true
               charts:
-                # Deploy ODF
+                # Deploy OpenShift Data Foundation
                 odf:
                   name: odf
                   path: charts/stack/odf
@@ -381,3 +381,15 @@ application-manager:
                   values:
                     storagecluster_storage: 500Gi
                     storagecluster_storageclass: pool-spinning-z2-1
+                # Deploy Ansible Automation Platform
+                aap:
+                  name: aap
+                  path: charts/stack/aap
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "3"
+                  destinationNamespace: aap
+                  values:
+                    automationcontroller_postgres_storage_class: pool-spinning-z2-1
+                    automationcontroller_projects_storage_access_mode: ReadWriteOnce
+                    automationcontroller_projects_storage_class: pool-spinning-z2-1
+                    automationcontroller_replicas: 1

@@ -1,0 +1,9 @@
+apiVersion: v2
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../../common
+description: Chart to Deploy Ansible Automation Platform
+name: aap
+type: application
+version: 0.1.0
