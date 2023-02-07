@@ -378,13 +378,6 @@ application-manager:
                   annotations:
                     argocd.argoproj.io/sync-wave: "2"
                   destinationNamespace: openshift-storage
-                  values: {}
-storagecluster:
-  annotations:
-    uninstall.ocs.openshift.io/cleanup-policy: delete
-    uninstall.ocs.openshift.io/mode: graceful
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/sync-wave: "2"
-  name: odf-storagecluster
-  namespace: openshift-storage
-  storageclass: thick-spinning
+                  values:
+                    storagecluster_storage: 500Gi
+                    storagecluster_storageclass: thick-csi

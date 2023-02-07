@@ -1,17 +1,17 @@
 apiVersion: ocs.openshift.io/v1
 kind: StorageCluster
 metadata:
-  {{- if $.Values.storagecluster.annotations }}
+  {{- if $.Values.storagecluster_annotations }}
   annotations:
     {{- tpl (toYaml $.Values.storagecluster.annotations) $ | nindent 4 }}
   {{- end }}
   labels:
     {{- include "common.labels.labels" $ | nindent 4 }}
-  {{- if $.Values.storagecluster.labels }}
+  {{- if $.Values.storagecluster_labels }}
     {{- tpl (toYaml $.Values.storagecluster.labels) $ | nindent 4 }}
   {{- end }}
-  name: {{ $.Values.storagecluster.name }}
-  namespace: {{ $.Values.storagecluster.namespace }}
+  name: {{ $.Values.storagecluster_name }}
+  namespace: {{ $.Values.storagecluster_namespace }}
 spec:
   arbiter: {}
   encryption:
@@ -36,11 +36,11 @@ spec:
         - ReadWriteOnce
         resources:
           requests:
-            storage: {{ $.Values.storagecluster.storage }}
-        storageClassName: {{ $.Values.storagecluster.storageclass }}
+            storage: {{ $.Values.storagecluster_storage }}
+        storageClassName: {{ $.Values.storagecluster_storageclass }}
         volumeMode: Block
       status: {}
-    name: ocs-deviceset-{{ $.Values.storagecluster.storageclass }}
+    name: ocs-deviceset-{{ $.Values.storagecluster_storageclass }}
     placement: {}
     portable: true
     preparePlacement: {}
