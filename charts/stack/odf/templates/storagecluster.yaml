@@ -1,0 +1,49 @@
+apiVersion: ocs.openshift.io/v1
+kind: StorageCluster
+metadata:
+  {{- if $.Values.storagecluster.annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.storagecluster.annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.storagecluster.labels }}
+    {{- tpl (toYaml $.Values.storagecluster.labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.storagecluster.name }}
+  namespace: {{ $.Values.storagecluster.namespace }}
+spec:
+  arbiter: {}
+  encryption:
+    kms: {}
+  externalStorage: {}
+  managedResources:
+    cephBlockPools: {}
+    cephConfig: {}
+    cephDashboard: {}
+    cephFilesystems: {}
+    cephObjectStoreUsers: {}
+    cephObjectStores: {}
+  mirroring: {}
+  nodeTopologies: {}
+  storageDeviceSets:
+  - config: {}
+    count: 1
+    dataPVCTemplate:
+      metadata: {}
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ $.Values.storagecluster.storage }}
+        storageClassName: {{ $.Values.storagecluster.storageclass }}
+        volumeMode: Block
+      status: {}
+    name: ocs-deviceset-{{ $.Values.storagecluster.storageclass }}
+    placement: {}
+    portable: true
+    preparePlacement: {}
+    replica: 3
+    resources: {}
+  version: 4.11.0

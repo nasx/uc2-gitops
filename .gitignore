@@ -3,5 +3,7 @@ charts/bootstrap/files/ssh/image-builder-ssh-private-key
 charts/bootstrap/files/ssh/image-builder-ssh-public-key
 charts/*/charts
 charts/*/Chart.lock
+charts/stack/*/charts
+charts/stack/*/Chart.lock
 examples/values/local
 local

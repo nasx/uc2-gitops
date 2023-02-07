@@ -357,3 +357,34 @@ application-manager:
                     operatorgroup:
                       clusterScope: true
                       create: false
+          # Deploy Management Stack
+          stack-apps:
+            name: stack-apps
+            path: charts/application-manager
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+              charts:
+                # Deploy ODF
+                odf:
+                  name: odf
+                  path: charts/stack/odf
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "2"
+                  destinationNamespace: openshift-storage
+                  values: {}
+storagecluster:
+  annotations:
+    uninstall.ocs.openshift.io/cleanup-policy: delete
+    uninstall.ocs.openshift.io/mode: graceful
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+  name: odf-storagecluster
+  namespace: openshift-storage
+  storageclass: thick-spinning
