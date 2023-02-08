@@ -1,0 +1,16 @@
+apiVersion: operator.open-cluster-management.io/v1
+kind: MultiClusterHub
+metadata:
+  {{- if $.Values.multiclusterhub_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.multiclusterhub_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.multiclusterhub_labels }}
+    {{- tpl (toYaml $.Values.multiclusterhub_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.multiclusterhub_name }}
+  namespace: {{ $.Values.multiclusterhub_namespace }}
+spec:
+  imagePullSecret: {{ $.Values.multiclusterhub_pull_secret_name }}

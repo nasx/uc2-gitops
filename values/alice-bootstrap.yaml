@@ -392,6 +392,13 @@ application-manager:
                   values:
                     storagecluster_storage: 500Gi
                     storagecluster_storageclass: pool-spinning-z2-1
+                # Deploy Advanced Cluster Management
+                acm:
+                  name: acm
+                  path: charts/stack/acm
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "3"
+                  destinationNamespace: open-cluster-management
                 # Deploy Ansible Automation Platform
                 aap:
                   name: aap

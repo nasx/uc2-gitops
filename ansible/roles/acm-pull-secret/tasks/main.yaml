@@ -1,0 +1,44 @@
+- name: Query Cluster Pull Secret
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Secret
+    name: pull-secret
+    namespace: openshift-config
+  register: cluster_pull_secret
+
+- name: Create Pull Secret for MultiClusterHub
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    resource_definition:
+      apiVersion: v1
+      data:
+        .dockerconfigjson: "{{ cluster_pull_secret.resources[0].data['.dockerconfigjson'] }}"
+      kind: Secret
+      metadata:
+        name: "{{ multiclusterhub_pull_secret_name }}"
+        namespace: "{{ multiclusterhub_namespace }}"
+      type: kubernetes.io/dockerconfigjson
+    state: present
+
+- name: Create Pull Secret for MultiClusterObservability
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    resource_definition:
+      apiVersion: v1
+      data:
+        .dockerconfigjson: "{{ cluster_pull_secret.resources[0].data['.dockerconfigjson'] }}"
+      kind: Secret
+      metadata:
+        name: "{{ multiclusterobservability_pull_secret_name }}"
+        namespace: "{{ multiclusterobservability_namespace }}"
+      type: kubernetes.io/dockerconfigjson
+    state: present

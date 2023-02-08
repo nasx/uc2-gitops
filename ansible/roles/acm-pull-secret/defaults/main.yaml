@@ -1,0 +1,4 @@
+multiclusterhub_namespace: open-cluster-management
+multiclusterhub_pull_secret_name: pull-secret
+multiclusterobservability_namespace: open-cluster-management-observability
+multiclusterobservability_pull_secret_name: pull-secret

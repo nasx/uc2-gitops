@@ -1,0 +1,22 @@
+---
+multiclusterhub_annotations:
+  argocd.argoproj.io/compare-options: IgnoreExtraneous
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  argocd.argoproj.io/sync-wave: "3"
+multiclusterhub_name: multiclusterhub
+multiclusterhub_namespace: open-cluster-management
+multiclusterhub_pull_secret_name: pull-secret
+multiclusterobservability_namespace: open-cluster-management-observability
+multiclusterobservability_pull_secret_name: pull-secret
+presync_job_active_deadline_seconds: 600
+presync_job_annotations:
+  argocd.argoproj.io/hook: PreSync
+  argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+presync_job_ansible_config: $GIT_DIRECTORY/ansible/ansible.cfg
+presync_job_ansible_playbook: ansible/playbooks/acm-pull-secret.yaml
+presync_job_git_directory: /tmp/git/management-stack-gitops
+presync_job_git_url: https://github.com/nasx/uc2-gitops.git
+presync_job_image: image-registry.openshift-image-registry.svc:5000/ansible-runner/ansible-runner:latest
+presync_job_name: presync-job
+presync_job_namespace: ansible-runner
+presync_job_serviceaccount: ansible-runner-sa
