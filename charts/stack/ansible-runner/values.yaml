@@ -1,6 +1,6 @@
 ---
 ansible_runner_base_image: registry.access.redhat.com/ubi8/python-38
-ansible_runner_debug_pod: true
+ansible_runner_debug_pod: false
 ansible_runner_image_stream_name: ansible-runner
 ansible_runner_name: ansible-runner
 ansible_runner_namespace: ansible-runner
