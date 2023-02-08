@@ -35,7 +35,20 @@ spec:
               mkdir -p $GIT_DIRECTORY
               git clone $GIT_URL $GIT_DIRECTORY
               ansible-galaxy collection install -r $GIT_DIRECTORY/ansible/collections/requirements.yaml
-              ansible-playbook $GIT_DIRECTORY/$ANSIBLE_PLAYBOOK
+              ansible-playbook $GIT_DIRECTORY/$ANSIBLE_PLAYBOOK \
+                -e multiclusterhub_namespace={{ $.Values.multiclusterhub_namespace }} \
+                -e multiclusterobservability_alert_manager_storage_size={{ $.Values.multiclusterobservability_alert_manager_storage_size }} \
+                -e multiclusterobservability_compact_storage_size={{ $.Values.multiclusterobservability_compact_storage_size }} \
+                -e multiclusterobservability_name={{ $.Values.multiclusterobservability_name }} \
+                -e multiclusterobservability_namespace={{ $.Values.multiclusterobservability_namespace }} \
+                -e multiclusterobservability_obc_name={{ $.Values.multiclusterobservability_obc_name }} \
+                -e multiclusterobservability_obc_namespace={{ $.Values.multiclusterobservability_obc_namespace }} \
+                -e multiclusterobservability_pull_secret_name={{ $.Values.multiclusterobservability_pull_secret_name }} \
+                -e multiclusterobservability_receive_storage_size={{ $.Values.multiclusterobservability_receive_storage_size }} \
+                -e multiclusterobservability_rules_storage_size={{ $.Values.multiclusterobservability_rules_storage_size }} \
+                -e multiclusterobservability_storage_class={{ $.Values.multiclusterobservability_storage_class }} \
+                -e multiclusterobservability_store_storage_size={{ $.Values.multiclusterobservability_store_storage_size }} \
+                -e multiclusterobservability_thanos_secret_name={{ $.Values.multiclusterobservability_thanos_secret_name }}
           imagePullPolicy: Always
           name: ansible-runner
       dnsPolicy: ClusterFirst

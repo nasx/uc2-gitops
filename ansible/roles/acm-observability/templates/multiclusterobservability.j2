@@ -1,0 +1,26 @@
+apiVersion: observability.open-cluster-management.io/v1beta2
+kind: MultiClusterObservability
+metadata:
+  name: {{ multiclusterobservability_name }}
+spec:
+  advanced:
+    retentionConfig:
+      retentionResolution1h: 30d
+      retentionResolution5m: 14d
+      retentionResolutionRaw: 5d
+  enableDownsampling: false
+  imagePullPolicy: Always
+  imagePullSecret: {{ multiclusterobservability_pull_secret_name }}
+  observabilityAddonSpec:
+    enableMetrics: true
+    interval: 60
+  storageConfig:
+    alertmanagerStorageSize: {{ multiclusterobservability_alert_manager_storage_size }}
+    compactStorageSize: {{ multiclusterobservability_compact_storage_size }}
+    metricObjectStorage:
+      key: thanos.yaml
+      name: thanos-object-storage
+    receiveStorageSize: {{ multiclusterobservability_receive_storage_size }}
+    ruleStorageSize: {{ multiclusterobservability_rules_storage_size }}
+    storageClass: {{ multiclusterobservability_storage_class }}
+    storeStorageSize: {{ multiclusterobservability_store_storage_size }}

@@ -1,0 +1,67 @@
+- name: Wait for ACM Operator
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: "{{ multiclusterhub_namespace }}"
+    label_selectors:
+      - name=multiclusterhub-operator
+  register: pod
+  retries: 60
+  delay: 10
+  until:
+    - pod.resources[0].status.phase == "Running"
+
+- name: Wait for ACM Observability OBC
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: objectbucket.io/v1alpha1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: ObjectBucketClaim
+    name: "{{ multiclusterobservability_obc_name }}"
+    namespace: "{{ multiclusterobservability_obc_namespace }}"
+  register: obc
+  retries: 60
+  delay: 10
+  until:
+    - obc.resources[0].status.phase == "Bound"
+
+- name: Query ACM Observability OBC ConfigMap
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: ConfigMap
+    name: "{{ multiclusterobservability_obc_name }}"
+    namespace: "{{ multiclusterobservability_obc_namespace }}"
+  register: obc_config_map
+
+- name: Query ACM Observability OBC Secret
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Secret
+    name: "{{ multiclusterobservability_obc_name }}"
+    namespace: "{{ multiclusterobservability_obc_namespace }}"
+  register: obc_secret
+
+- fail:
+    msg: stop
+
+- name: Create ACM Observability Thanos Config
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    resource_definition: "{{ lookup('template', 'templates/thanos-secret.j2') | from_yaml }}"
+    host: https://kubernetes.default.svc
+    state: present
+
+- name: Create ACM Observability
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    resource_definition: "{{ lookup('template', 'templates/multiclusterobservability.j2') | from_yaml }}"
+    host: https://kubernetes.default.svc
+    state: present

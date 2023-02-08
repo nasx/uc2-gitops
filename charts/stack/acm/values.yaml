@@ -7,8 +7,17 @@ multiclusterhub_annotations:
 multiclusterhub_name: multiclusterhub
 multiclusterhub_namespace: open-cluster-management
 multiclusterhub_pull_secret_name: pull-secret
+multiclusterobservability_alert_manager_storage_size: 10Gi
+multiclusterobservability_compact_storage_size: 10Gi
+multiclusterobservability_name: observability
 multiclusterobservability_namespace: open-cluster-management-observability
+multiclusterobservability_obc_name: acm-observability-obc
+multiclusterobservability_obc_namespace: open-cluster-management-observability
 multiclusterobservability_pull_secret_name: pull-secret
+multiclusterobservability_receive_storage_size: 10Gi
+multiclusterobservability_rules_storage_size: 10Gi
+multiclusterobservability_storage_class: thin
+multiclusterobservability_store_storage_size: 10Gi
 
 # Values for Observability ObjectBucketClaim
 observability_obc_annotations:
