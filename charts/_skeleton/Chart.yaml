@@ -1,9 +1,9 @@
 apiVersion: v2
-name: CHART_NAME
-description: CHART_DESCRIPTION
-type: application
-version: 0.1.0
 dependencies:
   - name: common
     version: 0.1.0
     repository: file://../common
+description: CHART_DESCRIPTION
+name: CHART_NAME
+type: application
+version: 0.1.0
