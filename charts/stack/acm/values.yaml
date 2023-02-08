@@ -1,4 +1,5 @@
 ---
+# Values for MultiClusterHub
 multiclusterhub_annotations:
   argocd.argoproj.io/compare-options: IgnoreExtraneous
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
@@ -8,6 +9,31 @@ multiclusterhub_namespace: open-cluster-management
 multiclusterhub_pull_secret_name: pull-secret
 multiclusterobservability_namespace: open-cluster-management-observability
 multiclusterobservability_pull_secret_name: pull-secret
+
+# Values for Observability ObjectBucketClaim
+observability_obc_annotations:
+  argocd.argoproj.io/compare-options: IgnoreExtraneous
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  argocd.argoproj.io/sync-wave: "3"
+observability_obc_name: acm-observability-obc
+observability_obc_namespace: open-cluster-management-observability
+observability_obc_generate_bucket_name: acm-observability
+
+# Values for ACM PostSync Job
+postsync_job_active_deadline_seconds: 600
+postsync_job_annotations:
+  argocd.argoproj.io/hook: PostSync
+  argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+postsync_job_ansible_config: $GIT_DIRECTORY/ansible/ansible.cfg
+postsync_job_ansible_playbook: ansible/playbooks/acm-onservability.yaml
+postsync_job_git_directory: /tmp/git/management-stack-gitops
+postsync_job_git_url: https://github.com/nasx/uc2-gitops.git
+postsync_job_image: image-registry.openshift-image-registry.svc:5000/ansible-runner/ansible-runner:latest
+postsync_job_name: postsync-job
+postsync_job_namespace: ansible-runner
+postsync_job_serviceaccount: ansible-runner-sa
+
+# Values for ACM PreSync Job
 presync_job_active_deadline_seconds: 600
 presync_job_annotations:
   argocd.argoproj.io/hook: PreSync
