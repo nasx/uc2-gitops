@@ -399,6 +399,8 @@ application-manager:
                   annotations:
                     argocd.argoproj.io/sync-wave: "3"
                   destinationNamespace: open-cluster-management
+                  values:
+                    multiclusterobservability_storage_class: pool-spinning-z2-1
                 # Deploy Ansible Automation Platform
                 aap:
                   name: aap
