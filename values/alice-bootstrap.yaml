@@ -258,6 +258,7 @@ application-manager:
                 - name: open-cluster-management
                   labels:
                     openshift.io/cluster-monitoring: "true"
+                - name: open-cluster-management-observability
                 - name: openshift-storage
                   labels:
                     openshift.io/cluster-monitoring: "true"
