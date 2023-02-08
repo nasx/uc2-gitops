@@ -34,7 +34,7 @@ postsync_job_annotations:
   argocd.argoproj.io/hook: PostSync
   argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 postsync_job_ansible_config: $GIT_DIRECTORY/ansible/ansible.cfg
-postsync_job_ansible_playbook: ansible/playbooks/acm-onservability.yaml
+postsync_job_ansible_playbook: ansible/playbooks/acm-observability.yaml
 postsync_job_git_directory: /tmp/git/management-stack-gitops
 postsync_job_git_url: https://github.com/nasx/uc2-gitops.git
 postsync_job_image: image-registry.openshift-image-registry.svc:5000/ansible-runner/ansible-runner:latest
