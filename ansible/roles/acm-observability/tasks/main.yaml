@@ -47,9 +47,6 @@
     namespace: "{{ multiclusterobservability_obc_namespace }}"
   register: obc_secret
 
-- fail:
-    msg: stop
-
 - name: Create ACM Observability Thanos Config
   kubernetes.core.k8s:
     api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
