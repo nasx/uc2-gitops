@@ -37,7 +37,7 @@ postsync_job_ansible_config: $GIT_DIRECTORY/ansible/ansible.cfg
 postsync_job_ansible_playbook: ansible/playbooks/acm-observability.yaml
 postsync_job_git_directory: /tmp/git/management-stack-gitops
 postsync_job_git_url: https://github.com/nasx/uc2-gitops.git
-postsync_job_image: image-registry.openshift-image-registry.svc:5000/ansible-runner/ansible-runner:latest
+postsync_job_image: quay.io/nasx/gitops-ansible-runner:latest
 postsync_job_name: postsync-job
 postsync_job_namespace: ansible-runner
 postsync_job_serviceaccount: ansible-runner-sa
@@ -51,7 +51,7 @@ presync_job_ansible_config: $GIT_DIRECTORY/ansible/ansible.cfg
 presync_job_ansible_playbook: ansible/playbooks/acm-pull-secret.yaml
 presync_job_git_directory: /tmp/git/management-stack-gitops
 presync_job_git_url: https://github.com/nasx/uc2-gitops.git
-presync_job_image: image-registry.openshift-image-registry.svc:5000/ansible-runner/ansible-runner:latest
+presync_job_image: quay.io/nasx/gitops-ansible-runner:latest
 presync_job_name: presync-job
 presync_job_namespace: ansible-runner
 presync_job_serviceaccount: ansible-runner-sa

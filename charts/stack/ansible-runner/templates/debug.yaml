@@ -18,7 +18,8 @@ spec:
   serviceAccountName: ansible-runner-sa
   containers:
     - name: ansible
-      image: image-registry.openshift-image-registry.svc:5000/{{ $.Values.ansible_runner_namespace }}/{{ $.Values.ansible_runner_image_stream_name }}:latest
+      #      image: image-registry.openshift-image-registry.svc:5000/{{ $.Values.ansible_runner_namespace }}/{{ $.Values.ansible_runner_image_stream_name }}:latest
+      image: quay.io/nasx/gitops-ansible-runner:latest
       command:
         - /bin/bash
         - -c
