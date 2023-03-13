@@ -13,4 +13,35 @@ metadata:
   name: {{ $.Values.multiclusterhub_name }}
   namespace: {{ $.Values.multiclusterhub_namespace }}
 spec:
+  availabilityConfig: High
+  enableClusterBackup: false
   imagePullSecret: {{ $.Values.multiclusterhub_pull_secret_name }}
+  ingress:
+    sslCiphers:
+    - ECDHE-ECDSA-AES256-GCM-SHA384
+    - ECDHE-RSA-AES256-GCM-SHA384
+    - ECDHE-ECDSA-AES128-GCM-SHA256
+    - ECDHE-RSA-AES128-GCM-SHA256
+  overrides:
+    components:
+    - enabled: true
+      name: console
+    - enabled: true
+      name: insights
+    - enabled: true
+      name: grc
+    - enabled: true
+      name: cluster-lifecycle
+    - enabled: true
+      name: volsync
+    - enabled: true
+      name: managedserviceaccount-preview
+    - enabled: true
+      name: multicluster-engine
+    - enabled: true
+      name: search
+    - enabled: true
+      name: app-lifecycle
+    - enabled: false
+      name: cluster-backup
+  separateCertificateManagement: false
