@@ -231,6 +231,23 @@ application-manager:
                 selfHeal: true
             valueFiles:
               - ../../values/alice-registry.yaml
+          # Configure Monitoring
+          monitoring:
+            name: monitoring
+            path: charts/monitoring
+            annotations:
+              argocd.argoproj.io/sync-wave: "4"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            valueFiles:
+              - ../../values/alice-monitoring.yaml
     # Management Stack Gitops
     management-stack:
       name: management-stack

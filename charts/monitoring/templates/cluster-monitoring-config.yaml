@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    {{- if eq $.Values.user_workload_monitoring true }}
+    enableUserWorkload: true
+    {{- end }}
+    prometheusK8s: 
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+      volumeClaimTemplate:
+       spec:
+         storageClassName: {{ $.Values.monitoring_storage_class }}
+         volumeMode: Filesystem
+         resources:
+           requests:
+             storage: {{ $.Values.monitoring_storage_size }}
+    alertmanagerMain:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    prometheusOperator:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    grafana:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    k8sPrometheusAdapter:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    kubeStateMetrics:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    telemeterClient:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    openshiftStateMetrics:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    thanosQuerier:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}

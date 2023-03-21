@@ -1,0 +1,6 @@
+---
+monitoring_node_selector_key: node-role.kubernetes.io/infra
+monitoring_node_selector_value: ""
+monitoring_storage_class: odf-storagecluster-ceph-rbd
+monitoring_storage_size: 50Gi
+user_workload_monitoring: true
