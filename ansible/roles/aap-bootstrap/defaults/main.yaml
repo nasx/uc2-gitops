@@ -1,5 +1,7 @@
 aap_admin_secret_name: automation-controller-admin-password
 aap_admin_user: admin
+aap_ldap_bind_secret_name: oauth-ldap-bind-secret
+aap_ldap_bind_secret_namespace: openshift-config
 aap_manifest_path: /var/secrets/aap-manifest/manifest.zip
 aap_namespace: aap
 aap_route_name: automation-controller
