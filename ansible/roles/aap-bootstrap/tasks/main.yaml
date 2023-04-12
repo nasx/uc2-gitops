@@ -1,0 +1,67 @@
+- name: Query Automation Controller Route
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: route.openshift.io/v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Route
+    name: "{{ aap_route_name }}"
+    namespace: "{{ aap_namespace }}"
+  register: route_results
+
+- name: Query Automation Controller Credentials
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Secret
+    name: "{{ aap_admin_secret_name }}"
+    namespace: "{{ aap_namespace }}"
+  register: admin_secret_results
+
+- ansible.builtin.set_fact:
+    aap_admin_password: "{{ admin_secret_results.resources[0].data.password | b64decode }}"
+    aap_route: "{{ route_results.resources[0].spec.host }}"
+
+- name: Configure AAP Manifest
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      manifest: "{{ lookup('ansible.builtin.file', aap_manifest_path) | b64encode }}"
+    force_basic_auth: yes
+    method: POST
+    password: "{{ aap_admin_password }}"
+    return_content: yes
+    url: "https://{{ aap_route }}/api/v2/config/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: no
+  register: manifest_results
+
+- name: Configure PENDO_TRACKING_STATE
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      PENDO_TRACKING_STATE: off
+    force_basic_auth: yes
+    method: PATCH
+    password: "{{ aap_admin_password }}"
+    return_content: yes
+    url: "https://{{ aap_route }}/api/v2/settings/ui/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: no
+  register: pendo_tracking_results
+
+- name: Configure INSIGHTS_TRACKING_STATE
+  ansible.builtin.uri:
+    body_format: json
+    body:
+      INSIGHTS_TRACKING_STATE: off
+    force_basic_auth: yes
+    method: PATCH
+    password: "{{ aap_admin_password }}"
+    return_content: yes
+    url: "https://{{ aap_route }}/api/v2/settings/system/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: no
+  register: insights_tracking_results

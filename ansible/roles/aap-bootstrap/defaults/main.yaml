@@ -1,0 +1,5 @@
+aap_admin_secret_name: automation-controller-admin-password
+aap_admin_user: admin
+aap_manifest_path: /var/secrets/aap-manifest/manifest.zip
+aap_namespace: aap
+aap_route_name: automation-controller

@@ -1,4 +1,5 @@
 .vscode
+ansible/local
 ansible/collections/ansible_collections
 charts/bootstrap/files/ssh/image-builder-ssh-private-key
 charts/bootstrap/files/ssh/image-builder-ssh-public-key
@@ -7,4 +8,4 @@ charts/*/Chart.lock
 charts/stack/*/charts
 charts/stack/*/Chart.lock
 examples/values/local
-local
+local/

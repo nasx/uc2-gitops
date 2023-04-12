@@ -1,4 +1,5 @@
 ---
+# Values for Automation Controller
 automationcontroller_annotations:
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   argocd.argoproj.io/sync-wave: "3"
@@ -10,3 +11,18 @@ automationcontroller_projects_storage_class: ocs-storagecluster-cephfs
 automationcontroller_projects_storage_size: 10Gi
 automationcontroller_replicas: 2
 automationcontroller_task_privileged: false
+
+# Values for AAP PostSync Job
+aap_postsync_job_active_deadline_seconds: 600
+aap_postsync_job_annotations:
+  argocd.argoproj.io/hook: PostSync
+  argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+aap_postsync_job_ansible_config: $GIT_DIRECTORY/ansible/ansible.cfg
+aap_postsync_job_ansible_playbook: ansible/playbooks/aap-bootstrap.yaml
+aap_postsync_job_git_directory: /tmp/git/management-stack-gitops
+aap_postsync_job_git_url: https://github.com/nasx/uc2-gitops.git
+aap_postsync_job_image: quay.io/nasx/gitops-ansible-runner:latest
+aap_postsync_job_manifest_secret: aap-manifest
+aap_postsync_job_name: aap-postsync-job
+aap_postsync_job_namespace: ansible-runner
+aap_postsync_job_serviceaccount: ansible-runner-sa

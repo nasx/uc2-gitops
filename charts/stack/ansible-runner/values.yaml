@@ -65,6 +65,14 @@ rbac:
             - objectbucketclaims
           verbs:
             - "*"
+        - apiGroups:
+            - route.openshift.io
+          resources:
+            - routes
+          verbs:
+            - list
+            - get
+            - watch
   clusterrolebinding:
     - name: ansible-runner-crb
       role: ansible-runner-cr

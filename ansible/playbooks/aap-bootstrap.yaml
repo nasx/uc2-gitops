@@ -1,0 +1,6 @@
+- name: Ansible Automation Platform Bootstrap
+  become: no
+  gather_facts: no
+  hosts: localhost
+  roles:
+    - name: aap-bootstrap
