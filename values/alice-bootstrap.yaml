@@ -353,7 +353,7 @@ application-manager:
                   destinationNamespace: openshift-storage
                   values:
                     operator:
-                      channel: stable-4.11
+                      channel: stable-4.12
                       installPlanApproval: Automatic
                       name: odf-operator
                       source: redhat-operators
@@ -425,7 +425,7 @@ application-manager:
                   destinationNamespace: openshift-storage
                   values:
                     storagecluster_storage: 500Gi
-                    storagecluster_storageclass: pool-spinning-z2-1
+                    storagecluster_storageclass: r440-2-ssd-local
                 # Deploy Advanced Cluster Management
                 acm:
                   name: acm
