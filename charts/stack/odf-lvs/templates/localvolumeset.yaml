@@ -1,0 +1,25 @@
+apiVersion: local.storage.openshift.io/v1alpha1
+kind: LocalVolumeSet
+metadata:
+  {{- if $.Values.lvs_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.lvs_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.lvs_labels }}
+    {{- tpl (toYaml $.Values.lvs_labels) $ | nindent 4 }}
+  {{- end }}
+  name: odf-localvolumeset
+  namespace: openshift-local-storage
+spec:
+  deviceInclusionSpec:
+    deviceTypes:
+    {{- tpl (toYaml $.Values.lvs_devicetypes) $ | nindent 4 }}
+    maxSize: {{ $.Values.lvs_maxsize }}
+    minSize: {{ $.Values.lvs_minsize }}
+  nodeSelector:
+    nodeSelectorTerms:
+    {{- tpl (toYaml $.Values.lvs_nodeselectorterms) $ | nindent 4 }}
+  storageClassName: {{ $.Values.lvs_storageclass }}
+  volumeMode: {{ $.Values.lvs_volumemode }}

@@ -393,6 +393,22 @@ application-manager:
                     operatorgroup:
                       clusterScope: true
                       create: false
+                local-storage-operator:
+                  name: local-storage-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-local-storage
+                  values:
+                    operator:
+                      channel: latest
+                      installPlanApproval: Automatic
+                      name: local-storage-operator
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: false
+                      create: true
           # Deploy Management Stack
           stack-apps:
             name: stack-apps
@@ -421,17 +437,26 @@ application-manager:
                   name: odf
                   path: charts/stack/odf
                   annotations:
+                    argocd.argoproj.io/sync-wave: "3"
+                  destinationNamespace: openshift-storage
+                  values:
+                    storagecluster_storage: "1"
+                    storagecluster_storageclass: odf-localvolumeset
+                # Deploy Local Volume Set for Data Foundation
+                odf-lvs:
+                  name: odf-lvs
+                  path: charts/stack/odf-lvs
+                  annotations:
                     argocd.argoproj.io/sync-wave: "2"
                   destinationNamespace: openshift-storage
                   values:
-                    storagecluster_storage: 500Gi
-                    storagecluster_storageclass: r440-2-ssd-local
+                    lvs_storageclass: odf-localvolumeset
                 # Deploy Advanced Cluster Management
                 acm:
                   name: acm
                   path: charts/stack/acm
                   annotations:
-                    argocd.argoproj.io/sync-wave: "3"
+                    argocd.argoproj.io/sync-wave: "4"
                   destinationNamespace: open-cluster-management
                   values:
                     multiclusterobservability_storage_class: pool-spinning-z2-1
@@ -440,7 +465,7 @@ application-manager:
                   name: aap
                   path: charts/stack/aap
                   annotations:
-                    argocd.argoproj.io/sync-wave: "3"
+                    argocd.argoproj.io/sync-wave: "4"
                   destinationNamespace: aap
                   values:
                     automationcontroller_postgres_storage_class: pool-spinning-z2-1
@@ -452,7 +477,7 @@ application-manager:
                   name: acs
                   path: charts/stack/acs
                   annotations:
-                    argocd.argoproj.io/sync-wave: "3"
+                    argocd.argoproj.io/sync-wave: "4"
                   destinationNamespace: stackrox
                   values:
                     central_additional_certificates: |-
