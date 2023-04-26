@@ -10,7 +10,7 @@ metadata:
   {{- if $.Values.lvs_labels }}
     {{- tpl (toYaml $.Values.lvs_labels) $ | nindent 4 }}
   {{- end }}
-  name: odf-localvolumeset
+  name: {{ $.Values.lvs_storageclass }}
   namespace: openshift-local-storage
 spec:
   deviceInclusionSpec:

@@ -443,9 +443,9 @@ application-manager:
                     argocd.argoproj.io/sync-wave: "3"
                   destinationNamespace: openshift-storage
                   values:
-                    storagecluster_mon_storage: "1"
+                    storagecluster_mon_storage: 50Gi
                     storagecluster_mon_storageclass: odf-mon-localvolumeset
-                    storagecluster_storage: "1"
+                    storagecluster_storage: 500Gi
                     storagecluster_storageclass: odf-osd-localvolumeset
                 # Deploy Local Volume Set for Data Foundation (MON)
                 odf-lvs-mon:
