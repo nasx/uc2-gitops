@@ -25,6 +25,15 @@ spec:
     cephObjectStoreUsers: {}
     cephObjectStores: {}
   mirroring: {}
+  monPVCTemplate:
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ $.Values.storagecluster_mon_storage }}
+      storageClassName: {{ $.Values.storagecluster_mon_storageclass }}
+      volumeMode: Block
   nodeTopologies: {}
   storageDeviceSets:
   - config: {}

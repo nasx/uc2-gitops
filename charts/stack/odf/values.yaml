@@ -4,6 +4,8 @@ storagecluster_annotations:
   uninstall.ocs.openshift.io/mode: graceful
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   argocd.argoproj.io/sync-wave: "2"
+storagecluster_mon_storage: 50Gi
+storagecluster_mon_storageclass: thin-csi
 storagecluster_name: odf-storagecluster
 storagecluster_namespace: openshift-storage
 storagecluster_storage: 2Ti
