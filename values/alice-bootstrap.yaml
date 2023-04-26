@@ -277,6 +277,9 @@ application-manager:
                   labels:
                     openshift.io/cluster-monitoring: "true"
                 - name: open-cluster-management-observability
+                - name: openshift-local-storage
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
                 - name: openshift-storage
                   labels:
                     openshift.io/cluster-monitoring: "true"
@@ -448,7 +451,7 @@ application-manager:
                   path: charts/stack/odf-lvs
                   annotations:
                     argocd.argoproj.io/sync-wave: "2"
-                  destinationNamespace: openshift-storage
+                  destinationNamespace: openshift-local-storage
                   values:
                     lvs_storageclass: odf-localvolumeset
                 # Deploy Advanced Cluster Management
