@@ -404,7 +404,7 @@ application-manager:
                   destinationNamespace: openshift-local-storage
                   values:
                     operator:
-                      channel: latest
+                      channel: stable
                       installPlanApproval: Automatic
                       name: local-storage-operator
                       source: redhat-operators
