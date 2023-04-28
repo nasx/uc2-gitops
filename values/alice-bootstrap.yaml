@@ -96,6 +96,22 @@ application-manager:
                     operatorgroup:
                       clusterScope: false
                       create: true
+                web-terminal-operator:
+                  name: web-terminal-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-operators
+                  values:
+                    operator:
+                      channel: fast
+                      installPlanApproval: Automatic
+                      name: web-terminal
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: false
           # Deploy RBAC
           rbac:
             name: rbac
