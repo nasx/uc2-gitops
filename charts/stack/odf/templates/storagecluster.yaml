@@ -4,6 +4,9 @@ metadata:
   {{- if $.Values.storagecluster_annotations }}
   annotations:
     {{- tpl (toYaml $.Values.storagecluster_annotations) $ | nindent 4 }}
+    {{- if eq $.Values.storagecluster_use_localstorage "true" }}
+    cluster.ocs.openshift.io/local-devices: "true"
+    {{- end }}
   {{- end }}
   labels:
     {{- include "common.labels.labels" $ | nindent 4 }}
@@ -25,6 +28,9 @@ spec:
     cephObjectStoreUsers: {}
     cephObjectStores: {}
   mirroring: {}
+  {{- if eq $.Values.storagecluster_use_localstorage "true" }}
+  monDataDirHostPath: /var/lib/rook
+  {{- else }}
   monPVCTemplate:
     spec:
       accessModes:
@@ -34,6 +40,7 @@ spec:
           storage: {{ $.Values.storagecluster_mon_storage }}
       storageClassName: {{ $.Values.storagecluster_mon_storageclass }}
       volumeMode: Block
+  {{- end }}
   nodeTopologies: {}
   storageDeviceSets:
   - config: {}
@@ -55,4 +62,4 @@ spec:
     preparePlacement: {}
     replica: 3
     resources: {}
-  version: 4.11.0
+  version: 4.12.0
