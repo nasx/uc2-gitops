@@ -6,8 +6,8 @@ metadata:
 spec:
   controller:
     processors:
-      operation: 4
-      status: 4
+      operation: 3
+      status: 3
     resources:
       limits:
         cpu: "2"
@@ -17,7 +17,7 @@ spec:
         memory: 1024Mi
     sharding:
       enabled: true
-      replicas: 4
+      replicas: 3
   dex:
     openShiftOAuth: true
     resources:
@@ -64,7 +64,7 @@ spec:
         cpu: 250m
         memory: 128Mi
   repo:
-    replicas: 2
+    replicas: 3
     resources:
       limits:
         cpu: "2"
@@ -98,7 +98,7 @@ spec:
         enabled: false
     ingress:
       enabled: true
-    replicas: 2
+    replicas: 3
     resources:
       limits:
         cpu: "2"
