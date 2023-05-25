@@ -1,0 +1,132 @@
+- name: Create Azure Resource Group
+  azure.azcollection.azure_rm_resourcegroup:
+    location: "{{ cloud_networking.azure.location }}"
+    name: "{{ cloud_networking.azure.resource_group }}"
+  register: azure_rg_results
+
+- name: Create Azure Virtual Network
+  azure.azcollection.azure_rm_virtualnetwork:
+    address_prefixes_cidr: "{{ cloud_networking.azure.vnet.cidr }}"
+    location: "{{ cloud_networking.azure.location }}"
+    name: "{{ cloud_networking.azure.vnet.name }}"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+  register: azure_vnet_results
+
+- name: Create Route Table for Tailscale
+  azure.azcollection.azure_rm_routetable:
+    location: "{{ cloud_networking.azure.location }}"
+    name: "{{ cloud_networking.azure.route_table.name }}"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+
+- name: Fetch IP Address
+  ansible.builtin.uri:
+    headers:
+      Accept: application/json
+    return_content: true
+    url: https://ip.wtf
+  register: my_ip
+
+- name: Create Network Security Group
+  azure.azcollection.azure_rm_securitygroup:
+    location: "{{ cloud_networking.azure.location }}"
+    name: "{{ cloud_networking.azure.resource_group }}-{{ cloud_networking.azure.vnet.name }}"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+    rules:
+      - access: Allow
+        description: UC2 Affliated CIDR Blocks
+        destination_address_prefix: "*"
+        direction: Inbound
+        name: uc2-cidr
+        priority: 100
+        source_address_prefix: "{{ cloud_networking.allow_cidrs }}"
+      - access: Allow
+        description: Direct Access
+        destination_address_prefix: "*"
+        direction: Inbound
+        name: my-ip
+        priority: 101
+        source_address_prefix: "{{ my_ip.json.ip }}/32"
+    state: present
+
+- name: Create Subnets
+  azure.azcollection.azure_rm_subnet:
+    address_prefix_cidr: "{{ item.cidr }}"
+    name: "{{ cloud_networking.azure.resource_group }}-{{ cloud_networking.azure.vnet.name }}-{{ item.postfix }}"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+    route_table:
+      name: "{{ cloud_networking.azure.route_table.name }}"
+      resource_group: "{{ cloud_networking.azure.resource_group }}"
+    security_group: "{{ cloud_networking.azure.resource_group }}-{{ cloud_networking.azure.vnet.name }}"
+    virtual_network_name: "{{ cloud_networking.azure.vnet.name }}"
+  loop: "{{ cloud_networking.azure.subnets }}"
+
+- name: Create NIC with IP Forwarding Enabled
+  azure.azcollection.azure_rm_networkinterface:
+    enable_ip_forwarding: true
+    ip_configurations:
+      - name: "{{ cloud_networking.azure.tailscale.vm_name }}-ip-config"
+        primary: true
+        private_ip_allocation_method: Dynamic
+        public_ip_address_name: "{{ cloud_networking.azure.tailscale.vm_name }}"
+        public_ip_allocation_method: Dynamic
+    location: "{{ cloud_networking.azure.location }}"
+    name: "{{ cloud_networking.azure.tailscale.vm_name }}-nic"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+    security_group: "{{ cloud_networking.azure.resource_group }}-{{ cloud_networking.azure.vnet.name }}"
+    subnet_name: "{{ cloud_networking.azure.resource_group }}-{{ cloud_networking.azure.vnet.name }}-lab"
+    virtual_network_name: "{{ cloud_networking.azure.vnet.name }}"
+
+- name: Deploy Tailscale Subnet Router Instance
+  azure.azcollection.azure_rm_virtualmachine:
+    admin_username: azureuser
+    image: "{{ cloud_networking.azure.tailscale.image }}"
+    license_type: RHEL_BYOS
+    location: "{{ cloud_networking.azure.location }}"
+    managed_disk_type: StandardSSD_LRS
+    name: "{{ cloud_networking.azure.tailscale.vm_name }}"
+    network_interface_names:
+      - name: "{{ cloud_networking.azure.tailscale.vm_name }}-nic"
+        resource_group: "{{ cloud_networking.azure.resource_group }}"
+    os_disk_size_gb: "{{ cloud_networking.azure.tailscale.os_disk_size_gb }}"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+    ssh_password_enabled: false
+    ssh_public_keys: "{{ cloud_networking.azure.tailscale.ssh_public_keys }}"
+    started: yes
+    state: present
+    subnet_name: "{{ cloud_networking.azure.resource_group }}-{{ cloud_networking.azure.vnet.name }}-lab"
+    vm_size: "{{ cloud_networking.azure.tailscale.vm_size }}"
+  register: tailscale_sr
+
+- ansible.builtin.set_fact:
+    vm_nic: "{{ tailscale_sr.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0] }}"
+
+- ansible.builtin.set_fact:
+    vm_external_ip: "{{ vm_nic.properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+    vm_internal_ip: "{{ vm_nic.properties.ipConfigurations[0].properties.privateIPAddress }}"
+    vm_nic_name: "{{ vm_nic.name }}"
+    
+- name: Add Tailscale Routes to Route Table
+  azure.azcollection.azure_rm_route:
+    address_prefix: "{{ item.cidr }}"
+    name: "{{ item.name }}"
+    next_hop_ip_address: "{{ vm_internal_ip }}"
+    next_hop_type: virtual_appliance
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+    route_table_name: "{{ cloud_networking.azure.route_table.name }}"
+  loop: "{{ cloud_networking.azure.route_table.routes }}"
+
+- name: Generate Dynamic Inventory for {{ cloud_networking.azure.tailscale.vm_name }}
+  ansible.builtin.add_host:
+    ansible_host: "{{ vm_external_ip }}"
+    ansible_ssh_private_key_file: "{{ cloud_networking.azure.tailscale.ssh_auth_private_key }}"
+    ansible_user: azureuser
+    group: subnet_routers
+    hostname: "{{ cloud_networking.azure.tailscale.vm_name }}"
+
+- name: Wait for SSH on Subnet Router
+  ansible.builtin.wait_for:
+    host: "{{ vm_external_ip }}"
+    port: 22
+    search_regex: OpenSSH
+  delay: 10
+  retries: 30

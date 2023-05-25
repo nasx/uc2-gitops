@@ -1,0 +1,5 @@
+- name: Setup Azure
+  ansible.builtin.include_tasks:
+    file: azure.yaml
+  when:
+    - cloud_networking.azure is defined

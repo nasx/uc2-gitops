@@ -1,0 +1,48 @@
+cloud_networking:
+  allow_cidrs:
+    - 10.0.0.0/16
+    - 10.2.0.0/16
+    - 100.64.0.0/10
+    - 172.16.10.0/24
+    - 172.16.70.0/24
+  azure:
+    location: eastus
+    resource_group: uc2
+    route_table:
+      name: tailscale
+      routes:
+        - cidr: 10.0.0.0/16
+          name: uc2-oe-aws
+        - cidr: 100.64.0.0/10
+          name: tailnet
+        - cidr: 172.16.10.0/24
+          name: uc2-lab-core
+        - cidr: 172.16.70.0/24
+          name: uc2-lab-demo
+    subnets:
+      - cidr: 10.2.0.0/23
+        postfix: lab
+      - cidr: 10.2.2.0/23
+        postfix: ocp-control
+      - cidr: 10.2.4.0/23
+        postfix: ocp-compute
+    tailscale:
+      advertise_routes:
+        - 10.2.0.0/16
+      image:
+        offer: RHEL
+        publisher: RedHat
+        sku: 9-lvm-gen2
+        version: latest
+      os_disk_size_gb: 64
+      ssh_auth_private_key: /home/chris/.ssh/uc2-azure-oe.pem
+      ssh_public_keys:
+        - path: /home/azureuser/.ssh/authorized_keys
+          key_data: |
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCSjTRmDf3RsKtgKj5MbjxcsNvMcKdHo+MKzkDbLD4Li6WAkMvQqdMbL4mYdqsuYooxZ0rn3d4rbG7Zi8IDqt2LiASPJSbijcpqZlSCv7tGKcn9nhz4FOHCKHAL6VBZeb9HGXR+gNH73dM5oiJw85uIOxofJHzg2xueW044wDvV91kdQwzAsDq+pcKH9SvyNSPNsFV/Uo2dmgqOWQ82bMEtpudg+KcyuuRAYL+EXoRyfxdcMRvYN+RB1/Le1XnElFmrMJ+30AJF1qfql/vRCkmqulugaY7j4FGauFR+7AzrByISBNKp4h3CZkWl6pbVCgQS3C3I1Js94YDaFqLfvTDXRlnlUL0zfM13ewJSmMRGk1SR2AcET8awwLBlxyGTzKAk4s1Wi65xoOVKBmGC7YR32szIn/uBn7aTNc1z2fluj5O9hEIv8Tuj4oB5h2DAIjDTpOlD7xQSmDMH9oX+rrpWeB8Y1gw5tMpXBWrM46esSX3PIYlBNVGA34PoOkdiCVU= uc2-oe-azure
+      vm_name: tailscale-sr-azure.oe.azure.uc2.io
+      vm_size: Standard_DS1_v2
+    vnet:
+      cidr:
+        - 10.2.0.0/16
+      name: tailscale

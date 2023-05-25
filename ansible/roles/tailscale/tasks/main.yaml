@@ -1,0 +1,51 @@
+- name: Stop/Disable FirewallD Service
+  ansible.builtin.systemd:
+    enabled: false
+    name: firewalld
+    state: stopped
+
+- name: Enable IPv4 Forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-tailscale.conf
+    sysctl_set: true
+    value: "1"
+
+- name: Add Tailscale Repository Configuration
+  ansible.builtin.copy:
+    dest: /etc/yum.repos.d/tailscale.repo
+    group: root
+    mode: "0644"
+    owner: root
+    src: files/tailscale.repo
+
+- name: Install Tailscale Package
+  ansible.builtin.dnf:
+    name: tailscale
+    state: latest
+
+- name: Start/Enable Tailscale Service
+  ansible.builtin.systemd:
+    daemon_reload: true
+    enabled: true
+    name: tailscaled
+    state: started
+
+- name: Check Tailscale Status
+  ansible.builtin.shell:
+    cmd: tailscale status --json
+  register: tailscale_status
+
+- name: Tailscale Up
+  ansible.builtin.shell:
+    cmd: |
+      tailscale up \
+        --auth-key "{{ global_auth_key }}" \
+        --accept-dns \
+        --accept-routes \
+        --snat-subnet-routes=false \
+        --advertise-routes={{ cloud_networking.azure.tailscale.advertise_routes | join(',') }}
+  no_log: true
+  when:
+    - (tailscale_status.stdout | from_json).Self.Online | default(false) == false
