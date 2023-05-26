@@ -115,6 +115,28 @@
     route_table_name: "{{ cloud_networking.azure.route_table.name }}"
   loop: "{{ cloud_networking.azure.route_table.routes }}"
 
+- name: Generate Lab DNS Shim
+  azure.azcollection.azure_rm_privatednszone:
+    name: "{{ cloud_networking.azure.dns_shim.zone }}"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+
+- name: Add Records to Private Zone
+  azure.azcollection.azure_rm_privatednsrecordset:
+    record_type: "{{ item.type }}"
+    records:
+      - entry: "{{ item.value }}"
+    relative_name: "{{ item.name }}"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+    zone_name: "{{ cloud_networking.azure.dns_shim.zone }}"
+  loop: "{{ cloud_networking.azure.dns_shim.records }}"
+
+- name: Generate Private DNS Zone Link
+  azure.azcollection.azure_rm_privatednszonelink:
+    name: "{{ cloud_networking.azure.vnet.name }}_dns_shim"
+    resource_group: "{{ cloud_networking.azure.resource_group }}"
+    virtual_network: "{{ cloud_networking.azure.vnet.name }}"
+    zone_name: "{{ cloud_networking.azure.dns_shim.zone }}"
+
 - name: Generate Dynamic Inventory for {{ cloud_networking.azure.tailscale.vm_name }}
   ansible.builtin.add_host:
     ansible_host: "{{ vm_external_ip }}"
