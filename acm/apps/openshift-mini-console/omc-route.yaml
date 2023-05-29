@@ -8,6 +8,7 @@ metadata:
   name: openshift-mini-console
   namespace: omc-app
 spec:
+  host: omc.uc2.io
   tls:
     insecureEdgeTerminationPolicy: Redirect
     termination: edge
