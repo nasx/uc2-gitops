@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: openshift-mini-console
+    app.kubernetes.io/component: openshift-mini-console
+    app.kubernetes.io/instance: openshift-mini-console
+  name: openshift-mini-console
+  namespace: omc-app
+spec:
+  ports:
+    - name: 5000-tcp
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+  selector:
+    deployment: openshift-mini-console
