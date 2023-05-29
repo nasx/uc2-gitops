@@ -20,7 +20,8 @@ spec:
     spec:
       serviceAccountName: openshift-mini-console-sa
       containers:
-      - image: quay.io/nasx/openshift-mini-console:latest
+      - image: quay.io/nasx/openshift-mini-console:v1.0
+        imagePullPolicy: Always
         name: openshift-mini-console
         ports:
         - containerPort: 5000
