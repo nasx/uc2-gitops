@@ -1,0 +1,26 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: prod-op1-apiserver
+policyDefaults:
+  complianceType: musthave
+  namespace: management-stack-gitops
+  placement:
+    clusterSelector:
+      matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - prod-op1
+      - key: vendor
+        operator: In
+        values:
+          - OpenShift
+      - key: local-cluster
+        operator: DoesNotExist
+policies:
+  - manifests:
+      - path: apiserver-cert-sealed.yaml
+      - path: apiserver.yaml
+    name: prod-op1-apiserver
+    remediationAction: enforce
