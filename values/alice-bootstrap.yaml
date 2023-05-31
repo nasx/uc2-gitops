@@ -356,7 +356,7 @@ application-manager:
                   destinationNamespace: rhacs-operator
                   values:
                     operator:
-                      channel: latest
+                      channel: stable
                       installPlanApproval: Automatic
                       name: rhacs-operator
                       source: redhat-operators
