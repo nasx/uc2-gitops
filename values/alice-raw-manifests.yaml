@@ -110,6 +110,16 @@ bootstrap:
       apiVersion: storage.k8s.io/v1
       kind: StorageClass
       metadata:
+        name: pool-nvme-vms
+      parameters:
+        datastoreurl: ds:///vmfs/volumes/5f403327-763d9b14-7741-0002c9235df0/
+      provisioner: csi.vsphere.vmware.com
+      reclaimPolicy: Delete
+      volumeBindingMode: WaitForFirstConsumer
+    - allowVolumeExpansion: true
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
         name: r440-2-ssd-local
       parameters:
         datastoreurl: ds:///vmfs/volumes/641dd25e-4c17b2e8-432a-2cea7f502a8a/
