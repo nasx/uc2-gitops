@@ -1,0 +1,126 @@
+- name: ACS Post Install Configuration
+  gather_facts: no
+  hosts: localhost
+  tasks:
+    - name: Query Cluster Infrastructure Resource
+      kubernetes.core.k8s_info:
+        api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+        api_version: config.openshift.io/v1
+        ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        host: https://kubernetes.default.svc
+        kind: Infrastructure
+        name: cluster
+      register: cluster_infrastructure
+
+    - name: Create cluster-init Bundle
+      ansible.builtin.include_role:
+        name: acs-api
+      vars:
+        central_api_body:
+          name: cluster-default
+        central_api_method: POST
+        central_api_path: v1/cluster-init/init-bundles
+        central_api_status_codes:
+          - 200
+          - 409
+    
+    - name: Create Default cluster-init Bundle and SecuredCluster for Central
+      block:
+        - ansible.builtin.set_fact:
+            central_kubectl_bundle: "{{ central_api_results.json.kubectlBundle | b64decode }}"
+
+        - name: Apply cluster-init Bundle
+          kubernetes.core.k8s:
+            api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+            ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            namespace: stackrox
+            host: https://kubernetes.default.svc
+            resource_definition: "{{ central_kubectl_bundle }}"
+            state: present
+      when:
+        - central_api_results.status == 200
+
+    - name: Create SecuredCluster Resource for Central
+      kubernetes.core.k8s:
+        api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+        ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        host: https://kubernetes.default.svc
+        resource_definition:
+          apiVersion: platform.stackrox.io/v1alpha1
+          kind: SecuredCluster
+          metadata:
+            name: stackrox-secured-cluster-services
+            namespace: stackrox
+          spec:
+            auditLogs:
+              collection: Auto
+            admissionControl:
+              listenOnUpdates: true
+              bypass: BreakGlassAnnotation
+              contactImageScanners: DoNotScanInline
+              listenOnCreates: true
+              timeoutSeconds: 20
+              listenOnEvents: true
+            scanner:
+              analyzer:
+                scaling:
+                  autoScaling: Enabled
+                  maxReplicas: 5
+                  minReplicas: 2
+                  replicas: 3
+              scannerComponent: AutoSense
+            perNode:
+              collector:
+                collection: EBPF
+                imageFlavor: Regular
+              taintToleration: TolerateTaints
+            clusterName: "{{ cluster_infrastructure.resources[0].status.infrastructureName }}"
+            centralEndpoint: "{{ central_route.resources[0].spec.host }}:443"
+        state: present
+
+    - name: Create OpenShift Auth Provider
+      ansible.builtin.include_role:
+        name: acs-api
+      vars:
+        central_api_body:
+          id: ""
+          name: OpenShift OAuth
+          type: openshift
+          config: {}
+          uiEndpoint: "{{ central_route.resources[0].spec.host }}"
+          enabled: true
+          traits:
+            mutabilityMode: ALLOW_MUTATE
+        central_api_method: POST
+        central_api_path: v1/authProviders
+        central_api_status_codes:
+          - 200
+          - 400
+
+    - ansible.builtin.set_fact:
+        auth_provider_results: "{{ central_api_results }}"
+
+    - name: Setup Auth Provider
+      block:
+        - name: Setup Access Rules
+          ansible.builtin.include_role:
+            name: acs-api
+          vars:
+            central_api_body:
+              previous_groups: []
+              required_groups:
+              - props:
+                  authProviderId: "{{ auth_provider_results.json.id }}"
+                roleName: Analyst
+              - props:
+                  authProviderId: "{{ auth_provider_results.json.id }}"
+                  id: ""
+                  key: groups
+                  value: cluster-admins
+                roleName: Admin
+            central_api_method: POST
+            central_api_path: v1/groupsbatch
+            central_api_status_codes:
+              - 200
+      when:
+        - auth_provider_results.status == 200

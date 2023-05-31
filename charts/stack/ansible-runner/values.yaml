@@ -21,6 +21,12 @@ rbac:
           verbs:
             - "*"
         - apiGroups:
+            - platform.stackrox.io
+          resources:
+            - securedclusters
+          verbs:
+            - "*"
+        - apiGroups:
             - observability.open-cluster-management.io
           resources:
             - multiclusterobservabilities

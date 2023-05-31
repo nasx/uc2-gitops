@@ -1,0 +1,47 @@
+- name: Assert Variables are Defined
+  ansible.builtin.assert:
+    that:
+      - central_api_body is defined
+      - central_api_method is defined
+      - central_api_path is defined
+      - central_api_status_codes is defined
+
+- name: Reset central_api_results
+  ansible.builtin.set_fact:
+    central_api_results: null
+
+- name: Query Central Administrator Credentials
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Secret
+    name: "{{ central_htpasswd_secret_name }}"
+    namespace: "{{ central_namespace }}"
+  register: central_admin_secret
+
+- name: Query Central OpenShift Route
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: route.openshift.io/v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Route
+    name: "{{ central_route_name }}"
+    namespace: "{{ central_namespace }}"
+  register: central_route
+
+- name: Query ACS API
+  ansible.builtin.uri:
+    body_format: json
+    body: "{{ central_api_body }}"
+    force_basic_auth: true
+    method: "{{ central_api_method }}"
+    return_content: yes
+    status_code: "{{ central_api_status_codes }}"
+    url: "https://{{ central_route.resources[0].spec.host }}/{{ central_api_path }}"
+    url_password: "{{ central_admin_secret.resources[0].data.password | b64decode }}"
+    url_username: admin
+    validate_certs: no
+  register: central_api_results
