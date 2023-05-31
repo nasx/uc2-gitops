@@ -3,10 +3,12 @@ central_annotations:
   argocd.argoproj.io/compare-options: IgnoreExtraneous
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   argocd.argoproj.io/sync-wave: "3"
+central_db_persistent_volume_name: central-db
+central_db_persistent_volume_storage_class: pool-nvme-vms
+central_persistent_volume_name: stackrox-db
+central_persistent_volume_storage_class: pool-nvme-vms
 central_name: stackrox-central-services
 central_namespace: stackrox
-central_persistent_volume_name: stackrox-db
-central_persistent_volume_storage_class: thin
 
 # Values for ACS PostSync Job
 postsync_job_active_deadline_seconds: 600

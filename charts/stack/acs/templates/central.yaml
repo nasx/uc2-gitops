@@ -14,6 +14,11 @@ metadata:
   namespace: {{ $.Values.central_namespace }}
 spec:
   central:
+    db:
+      persistence:
+        persistentVolumeClaim:
+          claimName: {{ $.Values.central_db_persistent_volume_name }}
+          storageClassName: {{ $.Values.central_db_persistent_volume_storage_class }}
     {{- if $.Values.central_default_tls_secret_name }}
     defaultTLSSecret:
       name: {{ $.Values.central_default_tls_secret_name }}
