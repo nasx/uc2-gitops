@@ -570,7 +570,6 @@ application-manager:
                       m5mL5W3YtHI+DvExOA0CvbhwOjoyV41/IAx/t2LweYlpXM8EdkbC6e0=
                       -----END CERTIFICATE-----
                     central_default_tls_secret_name: uc2-central-tls
-                    central_persistent_volume_storage_class: pool-spinning-z2-1
                     sealed-secret:
                       sealedsecrets:
                         - name: uc2-central-tls
