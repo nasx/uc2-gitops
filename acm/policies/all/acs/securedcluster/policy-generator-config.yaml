@@ -1,0 +1,28 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: acs-securedcluster
+policyDefaults:
+  complianceType: musthave
+  namespace: stackrox
+  placement:
+    clusterSelector:
+      matchExpressions:
+      - key: vendor
+        operator: In
+        values:
+          - OpenShift
+      - key: local-cluster
+        operator: DoesNotExist
+policies:
+  - manifests:
+      - path: namespace-rhacs-operator.yaml
+      - path: namespace-stackrox.yaml
+      - path: operatorgroup.yaml
+      - path: secret-admission-control-tls.yaml
+      - path: secret-collector-tls.yaml
+      - path: secret-sensor-tls.yaml
+      - path: securedcluster.yaml
+      - path: subscription.yaml
+    name: acs-securedcluster
+    remediationAction: enforce

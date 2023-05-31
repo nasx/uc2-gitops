@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  generateName: rhacs-operator-
+  name: rhacs-operator
+  namespace: rhacs-operator
+spec:
+  upgradeStrategy: Default
