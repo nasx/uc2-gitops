@@ -7,7 +7,7 @@ config:
     - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
       value: "true"
 operator:
-  channel: stable
+  channel: latest
   installPlanApproval: Automatic
   name: openshift-gitops-operator
   source: redhat-operators
