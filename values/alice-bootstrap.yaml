@@ -299,6 +299,7 @@ application-manager:
                 - name: openshift-storage
                   labels:
                     openshift.io/cluster-monitoring: "true"
+                - name: quay-enterprise
                 - name: rhacs-operator
                 - name: stackrox
           # Deploy Operators
@@ -340,7 +341,7 @@ application-manager:
                   destinationNamespace: open-cluster-management
                   values:
                     operator:
-                      channel: release-2.7
+                      channel: release-2.8
                       installPlanApproval: Automatic
                       name: advanced-cluster-management
                       source: redhat-operators
@@ -479,7 +480,7 @@ application-manager:
                     argocd.argoproj.io/sync-wave: "4"
                   destinationNamespace: open-cluster-management
                   values:
-                    multiclusterobservability_storage_class: pool-spinning-z2-1
+                    multiclusterobservability_storage_class: pool-nvme-vms
                 # Deploy Ansible Automation Platform
                 aap:
                   name: aap
@@ -488,9 +489,9 @@ application-manager:
                     argocd.argoproj.io/sync-wave: "4"
                   destinationNamespace: aap
                   values:
-                    automationcontroller_postgres_storage_class: pool-spinning-z2-1
+                    automationcontroller_postgres_storage_class: pool-nvme-vms
                     automationcontroller_projects_storage_access_mode: ReadWriteOnce
-                    automationcontroller_projects_storage_class: pool-spinning-z2-1
+                    automationcontroller_projects_storage_class: pool-nvme-vms
                     automationcontroller_replicas: 1
                 # Deploy Advanced Cluster Security
                 acs:
