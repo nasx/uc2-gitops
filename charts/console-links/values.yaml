@@ -32,3 +32,18 @@ console_links:
         section: Management Stack
       location: ApplicationMenu
       text: Red Hat OpenShift GitOps (Argo CD)
+
+# Values for ConsoleLinks PostSync Job
+console_links_postsync_job_active_deadline_seconds: 600
+console_links_postsync_job_annotations:
+  argocd.argoproj.io/hook: PostSync
+  argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+console_links_postsync_job_ansible_config: $GIT_DIRECTORY/ansible/ansible.cfg
+console_links_postsync_job_ansible_playbook: ansible/playbooks/openshift-console-links.yaml
+console_links_postsync_job_git_directory: /tmp/git/management-stack-gitops
+console_links_postsync_job_git_url: https://github.com/nasx/uc2-gitops.git
+console_links_postsync_job_image: quay.io/nasx/gitops-ansible-runner:latest
+console_links_postsync_job_manifest_secret: aap-manifest
+console_links_postsync_job_name: console-links-postsync-job
+console_links_postsync_job_namespace: ansible-runner
+console_links_postsync_job_serviceaccount: ansible-runner-sa

@@ -1,0 +1,28 @@
+- name: Query Application Route
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: route.openshift.io/v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Route
+    name: "{{ console_link.route_name }}"
+    namespace: "{{ console_link.route_namespace }}"
+  register: route_results
+
+- name: Create ConsoleLink Resource {{ console_link.name }}
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    resource_definition:
+      apiVersion: console.openshift.io/v1
+      kind: ConsoleLink
+      metadata:
+        name: "{{ console_link.name }}"
+      spec:
+        applicationMenu:
+          imageURL: "{{ console_link.spec.applicationMenu.imageURL }}"
+          section: "{{ console_link.spec.applicationMenu.section }}"
+        href: "https://{{ route_results.resources[0].spec.host }}"
+        location: "{{ console_link.spec.location }}"
+        text: "{{ console_link.spec.text }}"

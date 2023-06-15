@@ -1,0 +1,3 @@
+---
+configmap_name: console-links
+configmap_namespace: management-stack-gitops

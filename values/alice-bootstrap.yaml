@@ -129,6 +129,24 @@ application-manager:
                 selfHeal: true
             valueFiles:
               - ../../values/alice-rbac.yaml
+          # Deploy Custom Console Links
+          console-links:
+            name: console-links
+            path: charts/console-links
+            annotations:
+              argocd.argoproj.io/sync-wave: "4"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
+            values:
+              configmap_name: console-links
+              configmap_namespace: management-stack-gitops
           # Deploy MachineConfigPool Resources
           alice-machine-config-pools:
             name: alice-machine-config-pools

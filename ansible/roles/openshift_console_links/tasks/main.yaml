@@ -1,0 +1,21 @@
+- name: Query ConfigMap
+  kubernetes.core.k8s_info:
+    # api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    # ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    # host: https://kubernetes.default.svc
+    kind: ConfigMap
+    name: "{{ configmap_name }}"
+    namespace: "{{ configmap_namespace }}"
+  register: configmap_results
+
+- name: Set console_links Fact
+  ansible.builtin.set_fact:
+    console_links: "{{ configmap_results.resources[0].data.console_links | from_json }}"
+
+- name: Create ConsoleLink Resources
+  ansible.builtin.include_tasks:
+    file: consolelink.yaml
+  loop: "{{ console_links }}"
+  loop_control:
+    loop_var: console_link

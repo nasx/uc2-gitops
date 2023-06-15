@@ -79,6 +79,12 @@ rbac:
             - list
             - get
             - watch
+        - apiGroups:
+            - console.openshift.io
+          resources:
+            - consolelinks
+          verbs:
+            - "*"
   clusterrolebinding:
     - name: ansible-runner-crb
       role: ansible-runner-cr
