@@ -31,7 +31,8 @@
     namespace: "{{ aap_ldap_bind_secret_namespace }}"
   register: ldap_bind_secret_results
 
-- ansible.builtin.set_fact:
+- name: Set Facts
+  ansible.builtin.set_fact:
     aap_admin_password: "{{ admin_secret_results.resources[0].data.password | b64decode }}"
     aap_route: "{{ route_results.resources[0].spec.host }}"
     ldap_bind_password: "{{ ldap_bind_secret_results.resources[0].data.bindPassword | b64decode }}"
@@ -41,13 +42,13 @@
     body_format: json
     body:
       manifest: "{{ lookup('ansible.builtin.file', aap_manifest_path) | b64encode }}"
-    force_basic_auth: yes
+    force_basic_auth: true
     method: POST
     password: "{{ aap_admin_password }}"
-    return_content: yes
+    return_content: true
     url: "https://{{ aap_route }}/api/v2/config/"
     user: "{{ aap_admin_user }}"
-    validate_certs: no
+    validate_certs: false
   register: manifest_results
 
 - name: Configure PENDO_TRACKING_STATE
@@ -55,13 +56,13 @@
     body_format: json
     body:
       PENDO_TRACKING_STATE: off
-    force_basic_auth: yes
+    force_basic_auth: true
     method: PATCH
     password: "{{ aap_admin_password }}"
-    return_content: yes
+    return_content: true
     url: "https://{{ aap_route }}/api/v2/settings/ui/"
     user: "{{ aap_admin_user }}"
-    validate_certs: no
+    validate_certs: false
   register: pendo_tracking_results
 
 - name: Configure INSIGHTS_TRACKING_STATE
@@ -69,13 +70,13 @@
     body_format: json
     body:
       INSIGHTS_TRACKING_STATE: off
-    force_basic_auth: yes
+    force_basic_auth: true
     method: PATCH
     password: "{{ aap_admin_password }}"
-    return_content: yes
+    return_content: true
     url: "https://{{ aap_route }}/api/v2/settings/system/"
     user: "{{ aap_admin_user }}"
-    validate_certs: no
+    validate_certs: false
   register: insights_tracking_results
 
 - name: Configure LDAP Integration
@@ -110,10 +111,10 @@
         - cn=users,cn=accounts,dc=lab,dc=uc2,dc=io
         - SCOPE_SUBTREE
         - "(uid=%(user)s)"
-    force_basic_auth: yes
+    force_basic_auth: true
     method: PATCH
     password: "{{ aap_admin_password }}"
-    return_content: yes
+    return_content: true
     url: "https://{{ aap_route }}/api/v2/settings/all/"
     user: "{{ aap_admin_user }}"
-    validate_certs: no
+    validate_certs: false

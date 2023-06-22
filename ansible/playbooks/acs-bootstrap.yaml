@@ -1,5 +1,5 @@
 - name: ACS Post Install Configuration
-  gather_facts: no
+  gather_facts: true
   hosts: localhost
   tasks:
     - name: Query Cluster Infrastructure Resource
@@ -23,10 +23,13 @@
         central_api_status_codes:
           - 200
           - 409
-    
+
     - name: Create Default cluster-init Bundle and SecuredCluster for Central
+      when:
+        - central_api_results.status == 200
       block:
-        - ansible.builtin.set_fact:
+        - name: Set central_kubectl_bundle Fact
+          ansible.builtin.set_fact:
             central_kubectl_bundle: "{{ central_api_results.json.kubectlBundle | b64decode }}"
 
         - name: Apply cluster-init Bundle
@@ -37,8 +40,6 @@
             host: https://kubernetes.default.svc
             resource_definition: "{{ central_kubectl_bundle }}"
             state: present
-      when:
-        - central_api_results.status == 200
 
     - name: Create SecuredCluster Resource for Central
       kubernetes.core.k8s:
@@ -97,10 +98,13 @@
           - 200
           - 400
 
-    - ansible.builtin.set_fact:
+    - name: Set auth_provider_results Fact
+      ansible.builtin.set_fact:
         auth_provider_results: "{{ central_api_results }}"
 
     - name: Setup Auth Provider
+      when:
+        - auth_provider_results.status == 200
       block:
         - name: Setup Access Rules
           ansible.builtin.include_role:
@@ -109,18 +113,16 @@
             central_api_body:
               previous_groups: []
               required_groups:
-              - props:
-                  authProviderId: "{{ auth_provider_results.json.id }}"
-                roleName: Analyst
-              - props:
-                  authProviderId: "{{ auth_provider_results.json.id }}"
-                  id: ""
-                  key: groups
-                  value: cluster-admins
-                roleName: Admin
+                - props:
+                    authProviderId: "{{ auth_provider_results.json.id }}"
+                  roleName: Analyst
+                - props:
+                    authProviderId: "{{ auth_provider_results.json.id }}"
+                    id: ""
+                    key: groups
+                    value: cluster-admins
+                  roleName: Admin
             central_api_method: POST
             central_api_path: v1/groupsbatch
             central_api_status_codes:
               - 200
-      when:
-        - auth_provider_results.status == 200

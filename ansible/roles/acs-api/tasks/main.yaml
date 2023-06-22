@@ -38,10 +38,10 @@
     body: "{{ central_api_body }}"
     force_basic_auth: true
     method: "{{ central_api_method }}"
-    return_content: yes
+    return_content: true
     status_code: "{{ central_api_status_codes }}"
     url: "https://{{ central_route.resources[0].spec.host }}/{{ central_api_path }}"
     url_password: "{{ central_admin_secret.resources[0].data.password | b64decode }}"
     url_username: admin
-    validate_certs: no
+    validate_certs: false
   register: central_api_results
