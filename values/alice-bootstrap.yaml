@@ -144,7 +144,6 @@ application-manager:
                 destinationNamespace: management-stack-gitops
                 prune: true
                 selfHeal: true
-            values:
               configmap_name: console-links
               configmap_namespace: management-stack-gitops
           # Deploy MachineConfigPool Resources
