@@ -1,8 +1,14 @@
+- name: Test
+  ansible.builtin.debug:
+    var: skip_firewalld
+
 - name: Stop/Disable FirewallD Service
   ansible.builtin.systemd:
     enabled: false
     name: firewalld
     state: stopped
+  when:
+    - not skip_firewalld | default(false)
 
 - name: Enable IPv4 Forwarding
   ansible.posix.sysctl:
@@ -20,7 +26,7 @@
     owner: root
     src: files/tailscale.repo
 
-- name: Install Tailscale Package
+- name: Install Tailscale Package # noqa package-latest
   ansible.builtin.dnf:
     name: tailscale
     state: latest
@@ -32,12 +38,12 @@
     name: tailscaled
     state: started
 
-- name: Check Tailscale Status
+- name: Check Tailscale Status # noqa command-instead-of-shell no-changed-when
   ansible.builtin.shell:
     cmd: tailscale status --json
   register: tailscale_status
 
-- name: Tailscale Up
+- name: Tailscale Up # noqa command-instead-of-shell no-changed-when
   ansible.builtin.shell:
     cmd: |
       tailscale up \
@@ -45,7 +51,7 @@
         --accept-dns \
         --accept-routes \
         --snat-subnet-routes=false \
-        --advertise-routes={{ cloud_networking.azure.tailscale.advertise_routes | join(',') }}
+        --advertise-routes={{ advertise_routes | join(',') }}
   no_log: true
   when:
-    - (tailscale_status.stdout | from_json).Self.Online | default(false) == false
+    - not ((tailscale_status.stdout | from_json).Self.Online | default(false))

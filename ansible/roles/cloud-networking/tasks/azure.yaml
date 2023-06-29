@@ -18,14 +18,6 @@
     name: "{{ cloud_networking.azure.route_table.name }}"
     resource_group: "{{ cloud_networking.azure.resource_group }}"
 
-- name: Fetch IP Address
-  ansible.builtin.uri:
-    headers:
-      Accept: application/json
-    return_content: true
-    url: https://ip.wtf
-  register: my_ip
-
 - name: Create Network Security Group
   azure.azcollection.azure_rm_securitygroup:
     location: "{{ cloud_networking.azure.location }}"
@@ -91,20 +83,22 @@
     resource_group: "{{ cloud_networking.azure.resource_group }}"
     ssh_password_enabled: false
     ssh_public_keys: "{{ cloud_networking.azure.tailscale.ssh_public_keys }}"
-    started: yes
+    started: true
     state: present
     subnet_name: "{{ cloud_networking.azure.resource_group }}-{{ cloud_networking.azure.vnet.name }}-lab"
     vm_size: "{{ cloud_networking.azure.tailscale.vm_size }}"
   register: tailscale_sr
 
-- ansible.builtin.set_fact:
+- name: Set vm_nic Fact
+  ansible.builtin.set_fact:
     vm_nic: "{{ tailscale_sr.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0] }}"
 
-- ansible.builtin.set_fact:
+- name: Set vm_{external_ip,internal_ip,nic_name} Facts
+  ansible.builtin.set_fact:
     vm_external_ip: "{{ vm_nic.properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
     vm_internal_ip: "{{ vm_nic.properties.ipConfigurations[0].properties.privateIPAddress }}"
     vm_nic_name: "{{ vm_nic.name }}"
-    
+
 - name: Add Tailscale Routes to Route Table
   azure.azcollection.azure_rm_route:
     address_prefix: "{{ item.cidr }}"
@@ -139,6 +133,7 @@
 
 - name: Generate Dynamic Inventory for {{ cloud_networking.azure.tailscale.vm_name }}
   ansible.builtin.add_host:
+    advertise_routes: "{{ cloud_networking.azure.tailscale.advertise_routes }}"
     ansible_host: "{{ vm_external_ip }}"
     ansible_ssh_private_key_file: "{{ cloud_networking.azure.tailscale.ssh_auth_private_key }}"
     ansible_user: azureuser

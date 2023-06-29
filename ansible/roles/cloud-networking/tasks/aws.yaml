@@ -1,0 +1,468 @@
+- name: Create VPC
+  amazon.aws.ec2_vpc_net:
+    cidr_block: "{{ cloud_networking.aws.vpc.cidr }}"
+    dns_hostnames: true
+    dns_support: true
+    name: "{{ cloud_networking.aws.vpc.name }}"
+    region: "{{ cloud_networking.aws.region }}"
+    state: present
+  delay: 10
+  register: vpc_results
+  retries: 10
+  until:
+    - (vpc_results.failed is not defined) or (vpc_results.failed == false)
+
+- name: Create Internet Gateway for VPC Public Subnets
+  amazon.aws.ec2_vpc_igw:
+    region: "{{ cloud_networking.aws.region }}"
+    state: present
+    tags:
+      Name: "{{ cloud_networking.aws.vpc.name }}-igw"
+    vpc_id: "{{ vpc_results.vpc.id }}"
+  delay: 10
+  register: igw_results
+  retries: 10
+  until:
+    - (igw_results.failed is not defined) or (igw_results.failed == false)
+
+- name: Create Subnets for VPC
+  amazon.aws.ec2_vpc_subnet:
+    az: "{{ cloud_networking.aws.region }}{{ item.az }}"
+    cidr: "{{ item.cidr }}"
+    region: "{{ cloud_networking.aws.region }}"
+    state: present
+    tags:
+      Name: >-
+        {{ cloud_networking.aws.vpc.name }}-{{ cloud_networking.aws.region }}{{ item.az }}-{{ item.type }}
+        {{- '-' if (item.postfix != '') }}{{ item.postfix }}
+    vpc_id: "{{ vpc_results.vpc.id }}"
+  delay: 10
+  loop: "{{ cloud_networking.aws.subnets }}"
+  register: subnet_results
+  retries: 10
+  until:
+    - (subnet_results.failed is not defined) or (subnet_results.failed == false)
+
+- name: Debug subnet_results
+  ansible.builtin.debug:
+    var: subnet_results
+
+- name: Query Private Subnet Info
+  amazon.aws.ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ vpc_results.vpc.id }}"
+      "tag:Name": >-
+        {{ cloud_networking.aws.vpc.name }}-{{ cloud_networking.aws.region }}{{ item.az }}-{{ item.type }}
+        {{- '-' if (item.postfix != '') }}{{ item.postfix }}
+    region: "{{ cloud_networking.aws.region }}"
+  delay: 10
+  loop: "{{ cloud_networking.aws.subnets }}"
+  register: private_subnet_results
+  retries: 10
+  until:
+    - (private_subnet_results.failed is not defined) or (private_subnet_results.failed == false)
+  when:
+    - item.type == "private"
+
+- name: Debug private_subnet_results
+  ansible.builtin.debug:
+    var: private_subnet_results
+
+- name: Define List of Private Subnet IDs + Name
+  ansible.builtin.set_fact:
+    private_subnet_info: >-
+      {{
+        private_subnet_info | default([]) +
+        [
+          {
+            'name': item.subnets[0].tags.Name,
+            'id': item.subnets[0].subnet_id
+          }
+        ]
+      }}
+  loop: "{{ private_subnet_results.results }}"
+  when:
+    - item.skipped is not defined
+
+- name: Debug private_subnet_info
+  ansible.builtin.debug:
+    var: private_subnet_info
+
+- name: Define List of Private Subnet Names
+  ansible.builtin.set_fact:
+    private_subnet_list: >-
+      {{
+        private_subnet_list | default([]) +
+        [
+          item.subnets[0].tags.Name
+        ]
+      }}
+  loop: "{{ private_subnet_results.results }}"
+  when:
+    - item.skipped is not defined
+
+- name: Debug private_subnet_list
+  ansible.builtin.debug:
+    var: private_subnet_list
+
+- name: Query Public Subnet Info
+  amazon.aws.ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ vpc_results.vpc.id }}"
+      "tag:Name": >-
+        {{ cloud_networking.aws.vpc.name }}-{{ cloud_networking.aws.region }}{{ item.az }}-{{ item.type }}
+        {{- '-' if (item.postfix != '') }}{{ item.postfix }}
+    region: "{{ cloud_networking.aws.region }}"
+  delay: 10
+  loop: "{{ cloud_networking.aws.subnets }}"
+  register: public_subnet_results
+  retries: 10
+  until:
+    - (public_subnet_results.failed is not defined) or (public_subnet_results.failed == false)
+  when:
+    - item.type == "public"
+
+- name: Debug public_subnet_results
+  ansible.builtin.debug:
+    var: public_subnet_results
+
+- name: Define List of Public Subnet IDs + Name
+  ansible.builtin.set_fact:
+    public_subnet_info: >-
+      {{
+        public_subnet_info | default([]) +
+        [
+          {
+            'name': item.subnets[0].tags.Name,
+            'id': item.subnets[0].subnet_id
+          }
+        ]
+      }}
+  loop: "{{ public_subnet_results.results }}"
+  when:
+    - item.skipped is not defined
+
+- name: Debug public_subnet_info
+  ansible.builtin.debug:
+    var: public_subnet_info
+
+- name: Define List of Public Subnet Names
+  ansible.builtin.set_fact:
+    public_subnet_list: >-
+      {{
+        public_subnet_list | default([]) +
+        [
+          item.subnets[0].tags.Name
+        ]
+      }}
+  loop: "{{ public_subnet_results.results }}"
+  when:
+    - item.skipped is not defined
+
+- name: Debug public_subnet_list
+  ansible.builtin.debug:
+    var: public_subnet_list
+
+- name: Define List of Public Subnet IDs
+  ansible.builtin.set_fact:
+    public_subnet_ids: "{{ public_subnet_ids | default([]) + [item.subnets[0].subnet_id] }}"
+  loop: "{{ public_subnet_results.results }}"
+  when:
+    - item.skipped is not defined
+
+- name: Debug public_subnet_ids
+  ansible.builtin.debug:
+    var: public_subnet_ids
+
+- name: Query NAT Gateway EIPs for Public Subnets
+  amazon.aws.ec2_eip_info:
+    filters:
+      "tag:Name": "{{ item.name }}-ngw-eip"
+    region: "{{ cloud_networking.aws.region }}"
+  loop: "{{ public_subnet_info }}"
+  register: eip_results
+
+- name: Debug eip_results
+  ansible.builtin.debug:
+    var: eip_results
+
+- name: Define List of Existing EIPs for Public Subnets
+  ansible.builtin.set_fact:
+    existing_eips: >-
+      {{
+        existing_eips | default([]) +
+        [
+          item.addresses[0].tags.Name | regex_replace("-ngw-eip")
+        ]
+      }}
+  loop: "{{ eip_results.results }}"
+  when:
+    - item.addresses[0] is defined
+
+- name: Debug existing_eips
+  ansible.builtin.debug:
+    var: existing_eips
+
+- name: Create NAT Gateway EIPs for VPC Public Subnets
+  amazon.aws.ec2_eip:
+    in_vpc: true
+    region: "{{ cloud_networking.aws.region }}"
+    state: present
+  loop: "{{ public_subnet_list }}"
+  register: eip_create_results
+  when:
+    - (existing_eips is not defined) or (item not in existing_eips)
+
+- name: Debug eip_create_results
+  ansible.builtin.debug:
+    var: eip_create_results
+
+- name: Tag NAT Gateway EIPs for Public Subnets
+  amazon.aws.ec2_tag:
+    region: "{{ cloud_networking.aws.region }}"
+    resource: "{{ item.allocation_id }}"
+    state: present
+    tags:
+      Name: "{{ item.item }}-ngw-eip"
+  loop: "{{ eip_create_results.results }}"
+  when:
+    - item.skipped is not defined
+
+- name: Query NAT Gateway EIPs for Public Subnets
+  amazon.aws.ec2_eip_info:
+    filters:
+      "tag:Name": "{{ item.name }}-ngw-eip"
+    region: "{{ cloud_networking.aws.region }}"
+  loop: "{{ public_subnet_info }}"
+  register: eip_results
+
+- name: Debug eip_results
+  ansible.builtin.debug:
+    var: eip_results
+
+- name: Create NAT Gateways for Public Subnets
+  amazon.aws.ec2_vpc_nat_gateway:
+    # allocation_id: "{{ item.0.addresses[0].allocation_id }}"
+    client_token: "{{ item.1.name }}-ngw"
+    eip_address: "{{ item.0.addresses[0].public_ip }}"
+    if_exist_do_not_create: true
+    region: "{{ cloud_networking.aws.region }}"
+    state: present
+    subnet_id: "{{ item.1.id }}"
+    tags:
+      Name: "{{ item.1.name }}-ngw"
+  delay: 10
+  loop: "{{ eip_results.results | zip(public_subnet_info) | list }}"
+  register: ngw_results
+  retries: 10
+  until:
+    - (ngw_results.failed is not defined) or (ngw_results.failed == false)
+
+- name: Debug ngw_results
+  ansible.builtin.debug:
+    var: ngw_results
+
+- name: Create RTBs for Private Subnets
+  amazon.aws.ec2_vpc_route_table:
+    purge_routes: false
+    purge_subnets: false
+    purge_tags: false
+    region: "{{ cloud_networking.aws.region }}"
+    routes:
+      - dest: 0.0.0.0/0
+        nat_gateway_id: "{{ item.1.nat_gateway_id }}"
+    state: present
+    subnets:
+      - "{{ item.0.id }}"
+    tags:
+      Name: "{{ item.0.name }}-rtb"
+    vpc_id: "{{ vpc_results.vpc.id }}"
+  loop: "{{ private_subnet_info | zip(ngw_results.results) | list }}"
+  register: private_rtb_results
+
+- name: Debug private_rtb_results
+  ansible.builtin.debug:
+    var: private_rtb_results
+
+- name: Create RTB for Public Subnets
+  amazon.aws.ec2_vpc_route_table:
+    purge_routes: false
+    purge_subnets: false
+    purge_tags: false
+    region: "{{ cloud_networking.aws.region }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw_results.gateway_id }}"
+    state: present
+    subnets: "{{ public_subnet_ids }}"
+    tags:
+      Name: "{{ cloud_networking.aws.vpc.name }}-public-rtb"
+    vpc_id: "{{ vpc_results.vpc.id }}"
+  register: public_rtb_results
+
+- name: Debug public_rtb_results
+  ansible.builtin.debug:
+    var: public_rtb_results
+
+- name: Query RTBs For Private Subnets
+  amazon.aws.ec2_vpc_route_table_info:
+    filters:
+      association.subnet-id: "{{ item.id }}"
+    region: "{{ cloud_networking.aws.region }}"
+  loop: "{{ private_subnet_info }}"
+  register: private_rtb_results
+
+- name: Debug private_rtb_results
+  ansible.builtin.debug:
+    var: private_rtb_results
+    verbosity: 1
+
+- name: Add List of Private Route Table IDs
+  ansible.builtin.set_fact:
+    all_rtb_ids: "{{ all_rtb_ids | default([]) + [item.route_tables[0].id] }}"
+  loop: "{{ private_rtb_results.results }}"
+
+- name: Add Public Route Table ID
+  ansible.builtin.set_fact:
+    all_rtb_ids: "{{ all_rtb_ids + [public_rtb_results.route_table.id] }}"
+
+- name: Debug all_rtb_ids
+  ansible.builtin.debug:
+    var: all_rtb_ids
+
+- name: Create S3 Endpoint
+  amazon.aws.ec2_vpc_endpoint:
+    region: "{{ cloud_networking.aws.region }}"
+    route_table_ids: "{{ all_rtb_ids }}"
+    service: "com.amazonaws.{{ cloud_networking.aws.region }}.s3"
+    state: present
+    vpc_id: "{{ vpc_results.vpc.id }}"
+  delay: 10
+  register: endpoint_results
+  retries: 10
+
+- name: Debug endpoint_results
+  ansible.builtin.debug:
+    var: endpoint_results
+
+- name: Tag S3 Endpoint
+  amazon.aws.ec2_tag:
+    region: "{{ cloud_networking.aws.region }}"
+    resource: "{{ endpoint_results.result.vpc_endpoint_id }}"
+    state: present
+    tags:
+      Name: "{{ cloud_networking.aws.region }}-s3-endpoint"
+
+- name: Create Security Group
+  amazon.aws.ec2_security_group:
+    description: Tailscale Security Group
+    name: "{{ cloud_networking.aws.vpc.name }}-{{ cloud_networking.aws.region }}"
+    region: "{{ cloud_networking.aws.region }}"
+    rules:
+      - cidr_ip: "{{ cloud_networking.allow_cidrs }}"
+        proto: all
+        rule_desc: Allow All cloud-networking CIDRs
+      - cidr_ip: "{{ my_ip.json.ip }}/32"
+        proto: all
+        rule_desc: Allow ALL Traffic from my IP Address
+    rules_egress:
+      - cidr_ip: 0.0.0.0/0
+        proto: all
+        rule_desc: Allow All Traffic
+    state: present
+    vpc_id: "{{ vpc_results.vpc.id }}"
+
+- name: Create EC2 Key
+  amazon.aws.ec2_key:
+    key_material: "{{ lookup('file', cloud_networking.aws.tailscale.ssh_auth_public_key) }}"
+    name: "{{ cloud_networking.aws.tailscale.ec2_key_name }}"
+    region: "{{ cloud_networking.aws.region }}"
+    tags:
+      Name: "{{ cloud_networking.aws.tailscale.ec2_key_name }}"
+
+- name: Generate Instance Subnet from Metadata
+  ansible.builtin.set_fact:
+    instance_subnet_name: >-
+      {{ cloud_networking.aws.vpc.name }}-{{ cloud_networking.aws.region }}
+      {{- cloud_networking.aws.tailscale.subnet.az }}-{{ cloud_networking.aws.tailscale.subnet.type }}
+      {{- '-' if (cloud_networking.aws.tailscale.subnet.postfix != '') }}{{ cloud_networking.aws.tailscale.subnet.postfix }}
+
+- name: Query Instance Subnet Info
+  amazon.aws.ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ vpc_results.vpc.id }}"
+      "tag:Name": "{{ instance_subnet_name }}"
+    region: "{{ cloud_networking.aws.region }}"
+  delay: 10
+  register: instance_subnet_results
+  retries: 10
+  until:
+    - (instance_subnet_results.failed is not defined) or (instance_subnet_results.failed == false)
+
+- name: Debug instance_subnet_results
+  ansible.builtin.debug:
+    var: instance_subnet_results
+
+- name: Deploy Tailscale Subnet Router Instance
+  amazon.aws.ec2_instance:
+    image_id: "{{ cloud_networking.aws.tailscale.ami }}"
+    instance_initiated_shutdown_behavior: stop
+    instance_type: "{{ cloud_networking.aws.tailscale.instance_type }}"
+    key_name: "{{ cloud_networking.aws.tailscale.ec2_key_name }}"
+    name: "{{ cloud_networking.aws.tailscale.vm_name }}"
+    network:
+      assign_public_ip: true
+      delete_on_termination: true
+      source_dest_check: false
+    region: "{{ cloud_networking.aws.region }}"
+    security_group: "{{ cloud_networking.aws.vpc.name }}-{{ cloud_networking.aws.region }}"
+    state: started
+    volumes:
+      - device_name: /dev/sda1
+        ebs:
+          delete_on_termination: true
+          volume_size: "{{ cloud_networking.aws.tailscale.os_disk_size_gb }}"
+          volume_type: "{{ cloud_networking.aws.tailscale.ebs_volume_type }}"
+    vpc_subnet_id: "{{ instance_subnet_results.subnets[0].subnet_id }}"
+  register: instance_results
+
+- name: Debug instance_results
+  ansible.builtin.debug:
+    var: instance_results
+
+- name: Build Updated Route List
+  ansible.builtin.set_fact:
+    tailscale_route_list: >-
+      {{
+        tailscale_route_list | default([]) +
+        [
+          {
+            'dest': item.cidr,
+            'instance_id': instance_results.instances[0].instance_id
+          }
+        ]
+      }}
+  loop: "{{ cloud_networking.aws.route_table.routes }}"
+
+- name: Add Tailscale Routes to Existing Route Tables # noqa: args[module]
+  amazon.aws.ec2_vpc_route_table:
+    lookup: id
+    purge_routes: false
+    purge_subnets: false
+    purge_tags: false
+    region: "{{ cloud_networking.aws.region }}"
+    route_table_id: "{{ item }}"
+    routes: "{{ tailscale_route_list }}"
+    state: present
+    vpc_id: "{{ vpc_results.vpc.id }}"
+  loop: "{{ all_rtb_ids }}"
+
+- name: Generate Dynamic Inventory for {{ cloud_networking.aws.tailscale.vm_name }}
+  ansible.builtin.add_host:
+    advertise_routes: "{{ cloud_networking.aws.tailscale.advertise_routes }}"
+    ansible_host: "{{ instance_results.instances[0].public_ip_address }}"
+    ansible_ssh_private_key_file: "{{ cloud_networking.aws.tailscale.ssh_auth_private_key }}"
+    ansible_user: ec2-user
+    group: subnet_routers
+    hostname: "{{ cloud_networking.aws.tailscale.vm_name }}"
+    skip_firewalld: "{{ cloud_networking.aws.tailscale.skip_firewalld }}"

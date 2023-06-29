@@ -1,14 +1,12 @@
 - name: Setup Cloud Networking
-  gather_facts: no
+  gather_facts: false
   hosts: localhost
-  tasks:
-    - ansible.builtin.include_role:
-        name: cloud-networking
+  roles:
+    - role: cloud-networking
 
 - name: Bootstrap Tailscale Subnet Routers
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
   hosts: subnet_routers
-  tasks:
-    - ansible.builtin.include_role:
-        name: tailscale
+  roles:
+    - role: tailscale

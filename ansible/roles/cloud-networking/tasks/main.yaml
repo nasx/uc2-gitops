@@ -1,5 +1,23 @@
+- name: Fetch IP Address
+  ansible.builtin.uri:
+    headers:
+      Accept: application/json
+    return_content: true
+    url: https://ip.wtf
+  register: my_ip
+
 - name: Setup Azure
-  ansible.builtin.include_tasks:
+  ansible.builtin.import_tasks:
     file: azure.yaml
+  tags:
+    - azure
   when:
     - cloud_networking.azure is defined
+
+- name: Setup AWS
+  ansible.builtin.import_tasks:
+    file: aws.yaml
+  tags:
+    - aws
+  when:
+    - cloud_networking.aws is defined

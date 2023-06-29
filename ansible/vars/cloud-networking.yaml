@@ -5,6 +5,68 @@ cloud_networking:
     - 100.64.0.0/10
     - 172.16.10.0/24
     - 172.16.70.0/24
+  aws:
+    region: us-east-1
+    route_table:
+      routes:
+        - cidr: 10.2.0.0/16
+          name: uc2-oe-azure
+        - cidr: 100.64.0.0/10
+          name: tailnet
+        - cidr: 172.16.10.0/24
+          name: uc2-lab-core
+        - cidr: 172.16.70.0/24
+          name: uc2-lab-demo
+    subnets:
+      - az: a
+        cidr: 10.0.0.0/23
+        postfix: lab
+        type: public
+      - az: a
+        cidr: 10.0.2.0/23
+        postfix: ""
+        type: public
+      - az: b
+        cidr: 10.0.4.0/23
+        postfix: ""
+        type: public
+      - az: c
+        cidr: 10.0.6.0/23
+        postfix: ""
+        type: public
+      - az: a
+        cidr: 10.0.8.0/23
+        postfix: ""
+        type: private
+      - az: b
+        cidr: 10.0.10.0/23
+        postfix: ""
+        type: private
+      - az: c
+        cidr: 10.0.12.0/23
+        postfix: ""
+        type: private
+    tailscale:
+      advertise_routes:
+        - 10.0.0.0/16
+      # RHEL-9.2.0_HVM-20230615-x86_64-3-Access2-GP2
+      ami: ami-0b48a4da446f5f59e
+      ebs_volume_type: gp3
+      ec2_key_name: tailscale
+      instance_type: m5a.large
+      os_disk_size_gb: 64
+      skip_firewalld: true
+      ssh_auth_private_key: /home/chris/.ssh/openshift_uc2
+      ssh_auth_public_key: /home/chris/.ssh/openshift_uc2.pub
+      subnet:
+        az: a
+        postfix: lab
+        type: public
+      vm_name: tailscale-sr-aws.oe.aws.uc2.io
+    vpc:
+      cidr:
+        - 10.0.0.0/16
+      name: tailscale
   azure:
     dns_shim:
       zone: lab.uc2.io
