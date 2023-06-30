@@ -5,6 +5,18 @@ cloud_networking:
     - 100.64.0.0/10
     - 172.16.10.0/24
     - 172.16.70.0/24
+  dns_shim:
+    zone: lab.uc2.io
+    records:
+      - name: idm1
+        type: A
+        value: 172.16.10.2
+      - name: api.alice
+        type: A
+        value: 172.16.10.172
+      - name: "*.apps.alice"
+        type: A
+        value: 172.16.10.172
   aws:
     region: us-east-1
     route_table:
@@ -68,18 +80,6 @@ cloud_networking:
         - 10.0.0.0/16
       name: tailscale
   azure:
-    dns_shim:
-      zone: lab.uc2.io
-      records:
-        - name: idm1
-          type: A
-          value: 172.16.10.2
-        - name: api.alice
-          type: A
-          value: 172.16.10.172
-        - name: "*.apps.alice"
-          type: A
-          value: 172.16.10.172
     location: eastus
     resource_group: uc2
     route_table:

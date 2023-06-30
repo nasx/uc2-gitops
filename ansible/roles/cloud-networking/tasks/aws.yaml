@@ -29,6 +29,7 @@
   amazon.aws.ec2_vpc_subnet:
     az: "{{ cloud_networking.aws.region }}{{ item.az }}"
     cidr: "{{ item.cidr }}"
+    purge_tags: false
     region: "{{ cloud_networking.aws.region }}"
     state: present
     tags:
@@ -456,6 +457,30 @@
     state: present
     vpc_id: "{{ vpc_results.vpc.id }}"
   loop: "{{ all_rtb_ids }}"
+
+- name: Generate Lab DNS Shim
+  amazon.aws.route53_zone:
+    purge_tags: false
+    state: present
+    vpc_id: "{{ vpc_results.vpc.id }}"
+    vpc_region: "{{ cloud_networking.aws.region }}"
+    zone: "{{ cloud_networking.dns_shim.zone }}"
+  register: zone_results
+
+- name: Debug zone_results
+  ansible.builtin.debug:
+    var: zone_results
+
+- name: Add Records to Private Zone
+  amazon.aws.route53:
+    overwrite: false
+    private_zone: true
+    record: "{{ item.name }}.{{ cloud_networking.dns_shim.zone }}"
+    state: present
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+    zone: "{{ cloud_networking.dns_shim.zone }}"
+  loop: "{{ cloud_networking.dns_shim.records }}"
 
 - name: Generate Dynamic Inventory for {{ cloud_networking.aws.tailscale.vm_name }}
   ansible.builtin.add_host:

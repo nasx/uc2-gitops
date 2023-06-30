@@ -111,7 +111,7 @@
 
 - name: Generate Lab DNS Shim
   azure.azcollection.azure_rm_privatednszone:
-    name: "{{ cloud_networking.azure.dns_shim.zone }}"
+    name: "{{ cloud_networking.dns_shim.zone }}"
     resource_group: "{{ cloud_networking.azure.resource_group }}"
 
 - name: Add Records to Private Zone
@@ -121,15 +121,15 @@
       - entry: "{{ item.value }}"
     relative_name: "{{ item.name }}"
     resource_group: "{{ cloud_networking.azure.resource_group }}"
-    zone_name: "{{ cloud_networking.azure.dns_shim.zone }}"
-  loop: "{{ cloud_networking.azure.dns_shim.records }}"
+    zone_name: "{{ cloud_networking.dns_shim.zone }}"
+  loop: "{{ cloud_networking.dns_shim.records }}"
 
 - name: Generate Private DNS Zone Link
   azure.azcollection.azure_rm_privatednszonelink:
     name: "{{ cloud_networking.azure.vnet.name }}_dns_shim"
     resource_group: "{{ cloud_networking.azure.resource_group }}"
     virtual_network: "{{ cloud_networking.azure.vnet.name }}"
-    zone_name: "{{ cloud_networking.azure.dns_shim.zone }}"
+    zone_name: "{{ cloud_networking.dns_shim.zone }}"
 
 - name: Generate Dynamic Inventory for {{ cloud_networking.azure.tailscale.vm_name }}
   ansible.builtin.add_host:
