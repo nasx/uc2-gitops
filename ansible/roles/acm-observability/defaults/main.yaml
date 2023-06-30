@@ -8,6 +8,6 @@ multiclusterobservability_obc_namespace: open-cluster-management-observability
 multiclusterobservability_pull_secret_name: pull-secret
 multiclusterobservability_receive_storage_size: 10Gi
 multiclusterobservability_rules_storage_size: 10Gi
-multiclusterobservability_storage_class: thin
+multiclusterobservability_storage_class: thin-csi
 multiclusterobservability_store_storage_size: 10Gi
 multiclusterobservability_thanos_secret_name: thanos-object-storage

@@ -94,7 +94,7 @@ bootstrap:
         resources:
           requests:
             storage: 50Gi
-        storageClassName: thin
+        storageClassName: thin-csi
         volumeMode: Filesystem
     - allowVolumeExpansion: true
       apiVersion: storage.k8s.io/v1

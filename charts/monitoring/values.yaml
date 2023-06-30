@@ -1,6 +1,6 @@
 ---
 monitoring_node_selector_key: node-role.kubernetes.io/infra
 monitoring_node_selector_value: ""
-monitoring_storage_class: thin
+monitoring_storage_class: thin-csi
 monitoring_storage_size: 50Gi
 user_workload_monitoring: true
