@@ -342,7 +342,7 @@ application-manager:
                   destinationNamespace: aap
                   values:
                     operator:
-                      channel: stable-2.3-cluster-scoped
+                      channel: stable-2.4-cluster-scoped
                       installPlanApproval: Automatic
                       name: ansible-automation-platform-operator
                       source: redhat-operators
@@ -390,7 +390,7 @@ application-manager:
                   destinationNamespace: openshift-storage
                   values:
                     operator:
-                      channel: stable-4.12
+                      channel: stable-4.13
                       installPlanApproval: Automatic
                       name: odf-operator
                       source: redhat-operators
