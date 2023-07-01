@@ -507,8 +507,8 @@ application-manager:
                   destinationNamespace: aap
                   values:
                     automationcontroller_postgres_storage_class: pool-nvme-vms
-                    automationcontroller_projects_storage_access_mode: ReadWriteOnce
-                    automationcontroller_projects_storage_class: pool-nvme-vms
+                    automationcontroller_projects_storage_access_mode: ReadWriteMany
+                    automationcontroller_projects_storage_class: odf-storagecluster-cephfs
                     automationcontroller_replicas: 1
                 # Deploy Advanced Cluster Security
                 acs:

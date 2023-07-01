@@ -14,15 +14,25 @@ metadata:
   namespace: {{ $.Values.automationcontroller_namespace }}
 spec:
   admin_user: admin
-  create_preload_data: true
+  auto_upgrade: true
+  create_preload_data: false
   garbage_collect_secrets: false
   image_pull_policy: IfNotPresent
   ingress_type: Route
-  projects_persistence: true
+  ipv6_disabled: true
+  loadbalancer_port: 80
+  loadbalancer_protocol: http
+  no_log: true
+  postgres_keepalives_count: 5
+  postgres_keepalives_idle: 5
+  postgres_keepalives_interval: 5
+  postgres_keepalives: true
   postgres_storage_class: {{ $.Values.automationcontroller_postgres_storage_class }}
+  projects_persistence: true
   projects_storage_access_mode: {{ $.Values.automationcontroller_projects_storage_access_mode }}
   projects_storage_class: {{ $.Values.automationcontroller_projects_storage_class }}
   projects_storage_size: {{ $.Values.automationcontroller_projects_storage_size }}
   replicas: {{ $.Values.automationcontroller_replicas }}
   route_tls_termination_mechanism: Edge
+  set_self_labels: true
   task_privileged: {{ $.Values.automationcontroller_task_privileged }}
