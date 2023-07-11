@@ -2,9 +2,9 @@ apiVersion: tower.ansible.com/v1alpha1
 kind: AnsibleJob
 metadata:
   name: omc-haproxy
-  namespace: omc-app
+  namespace: aap
   labels:
     app.kubernetes.io/name: omc-app
 spec:
-  tower_auth_secret: omc-app
+  tower_auth_secret: aap
   job_template_name: omc-haproxy
