@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: reflector-scc
+  namespace: {{ $.Values.reflector_namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: reflector-scc
+subjects:
+- kind: ServiceAccount
+  name: reflector
+  namespace: reflector

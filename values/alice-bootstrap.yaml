@@ -129,6 +129,21 @@ application-manager:
                 selfHeal: true
             valueFiles:
               - ../../values/alice-rbac.yaml
+          # Deploy EmberStack Kubernetes Reflector
+          reflector:
+            name: reflector
+            path: charts/reflector
+            annotations:
+              argocd.argoproj.io/sync-wave: "1"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
           # Deploy Custom Console Links
           console-links:
             name: console-links

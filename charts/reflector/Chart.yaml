@@ -1,0 +1,9 @@
+apiVersion: v2
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../common
+description: Custom Kubernetes controller that can be used to replicate secrets, configmaps and certificates.
+name: reflector
+type: application
+version: 0.1.0
