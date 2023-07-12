@@ -169,7 +169,7 @@
     name: Empty Inventory
     organization: "{{ aap_default_organization }}"
     state: present
-    validate_certs: true
+    validate_certs: false
 
 - name: Setup Execution Environments
   awx.awx.execution_environment:
@@ -207,7 +207,7 @@
     return_content: true
     url: "https://{{ aap_route }}/api/v2/tokens/"
     user: "{{ aap_admin_user }}"
-    validate_certs: true
+    validate_certs: false
   register: token_list_results
 
 - name: Debug token_list_results
@@ -227,7 +227,7 @@
         description: Token for AnsibleJob spawned by ACM
         scope: write
         state: present
-        validate_certs: true
+        validate_certs: false
       register: token_results
 
     - name: Debug token_results
