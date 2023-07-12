@@ -1,25 +1,3 @@
-- name: Query Automation Controller Route
-  kubernetes.core.k8s_info:
-    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-    api_version: route.openshift.io/v1
-    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    host: https://kubernetes.default.svc
-    kind: Route
-    name: "{{ aap_route_name }}"
-    namespace: "{{ aap_namespace }}"
-  register: route_results
-
-- name: Query Automation Controller Credentials
-  kubernetes.core.k8s_info:
-    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-    api_version: v1
-    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    host: https://kubernetes.default.svc
-    kind: Secret
-    name: "{{ aap_admin_secret_name }}"
-    namespace: "{{ aap_namespace }}"
-  register: admin_secret_results
-
 - name: Query LDAP Bind Service Account Password
   kubernetes.core.k8s_info:
     api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
@@ -33,8 +11,6 @@
 
 - name: Set Facts
   ansible.builtin.set_fact:
-    aap_admin_password: "{{ admin_secret_results.resources[0].data.password | b64decode }}"
-    aap_route: "{{ route_results.resources[0].spec.host }}"
     ldap_bind_password: "{{ ldap_bind_secret_results.resources[0].data.bindPassword | b64decode }}"
 
 - name: Configure AAP Manifest
@@ -51,7 +27,7 @@
     validate_certs: false
   register: manifest_results
 
-- name: Configure PENDO_TRACKING_STATE
+- name: Configure PENDO_TRACKING_STATE # noqa: yaml[truthy]
   ansible.builtin.uri:
     body_format: json
     body:
@@ -65,7 +41,7 @@
     validate_certs: false
   register: pendo_tracking_results
 
-- name: Configure INSIGHTS_TRACKING_STATE
+- name: Configure INSIGHTS_TRACKING_STATE # noqa: yaml[truthy]
   ansible.builtin.uri:
     body_format: json
     body:

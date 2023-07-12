@@ -1,0 +1,259 @@
+- name: Query OpenShift Infrastructure Resource for API Server URL
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: config.openshift.io/v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Infrastructure
+    name: cluster
+  register: infrastructure_results
+
+- name: Debug infrastructure_results
+  ansible.builtin.debug:
+    var: infrastructure_results
+
+- name: Create Service Account for AAP
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    resource_definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ aap_sa_name }}"
+        namespace: "{{ aap_sa_namespace }}"
+      spec:
+        secrets:
+          - "{{ aap_sa_name }}-ansible-token"
+    state: present
+  register: sa_results
+
+- name: Create Service Account Token
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        annotations:
+          kubernetes.io/service-account.name: "{{ aap_sa_name }}"
+          reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        name: "{{ aap_sa_name }}-ansible-token"
+        namespace: "{{ aap_sa_namespace }}"
+      type: kubernetes.io/service-account-token
+    state: present
+
+- name: Add Token to Service Account
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    merge_type:
+      - strategic-merge
+      - merge
+    resource_definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ aap_sa_name }}"
+        namespace: "{{ aap_sa_namespace }}"
+      secrets:
+        - name: "{{ aap_sa_name }}-ansible-token"
+    state: present
+
+- name: Query ServiceAccount Token Secret
+  kubernetes.core.k8s_info:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    api_version: v1
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    kind: Secret
+    name: "{{ aap_sa_name }}-ansible-token"
+    namespace: "{{ aap_sa_namespace }}"
+  register: sa_secret_results
+
+- name: Debug sa_secret_results
+  ansible.builtin.debug:
+    var: sa_secret_results
+
+- name: Create ClusterRole for AAP Service Account
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    resource_definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        annotations:
+          rbac.authorization.kubernetes.io/autoupdate: "true"
+        name: "{{ aap_sa_name }}"
+      rules:
+        - apiGroups:
+            - '*'
+          resources:
+            - '*'
+          verbs:
+            - '*'
+        - nonResourceURLs:
+            - '*'
+          verbs:
+            - '*'
+    state: present
+
+- name: Create ClusterRoleBinding for AAP Service Account
+  kubernetes.core.k8s:
+    api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+    ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    host: https://kubernetes.default.svc
+    resource_definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: "{{ aap_sa_name }}"
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: "{{ aap_sa_name }}"
+      subjects:
+        - kind: ServiceAccount
+          name: "{{ aap_sa_name }}"
+          namespace: "{{ aap_sa_namespace }}"
+    state: present
+
+- name: Setup Organizations
+  awx.awx.organization:
+    controller_host: "{{ aap_route }}"
+    controller_password: "{{ aap_admin_password }}"
+    controller_username: admin
+    description: "{{ item.description }}"
+    name: "{{ item.name }}"
+    state: present
+    validate_certs: false
+  loop: "{{ automation_platform.organizations }}"
+  register: organization_results
+
+- name: Debug organization_results
+  ansible.builtin.debug:
+    var: organization_results
+
+- name: Setup Projects
+  awx.awx.project:
+    controller_host: "{{ aap_route }}"
+    controller_password: "{{ aap_admin_password }}"
+    controller_username: admin
+    description: "{{ item.description }}"
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    scm_branch: "{{ item.scm_branch }}"
+    scm_type: "{{ item.scm_type }}"
+    scm_url: "{{ item.scm_url }}"
+    validate_certs: false
+  loop: "{{ automation_platform.projects }}"
+  register: project_results
+
+- name: Debug project_results
+  ansible.builtin.debug:
+    var: project_results
+
+- name: Setup Default Empty Inventory
+  awx.awx.inventory:
+    controller_host: "{{ aap_route }}"
+    controller_password: "{{ aap_admin_password }}"
+    controller_username: admin
+    description: Default Empty Inventory
+    kind: ""
+    name: Empty Inventory
+    organization: "{{ aap_default_organization }}"
+    state: present
+    validate_certs: true
+
+- name: Setup Execution Environments
+  awx.awx.execution_environment:
+    controller_host: "{{ aap_route }}"
+    controller_password: "{{ aap_admin_password }}"
+    controller_username: admin
+    description: "{{ item.description }}"
+    image: "{{ item.image }}"
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    pull: "{{ item.pull }}"
+  loop: "{{ automation_platform.execution_environments }}"
+
+- name: Create Hub Cluster Credential
+  awx.awx.credential:
+    controller_host: "{{ aap_route }}"
+    controller_password: "{{ aap_admin_password }}"
+    controller_username: admin
+    credential_type: OpenShift or Kubernetes API Bearer Token
+    description: "{{ aap_admin_token_description }}"
+    inputs:
+      bearer_token: "{{ sa_secret_results.resources[0].data.token | ansible.builtin.b64decode }}"
+      host: "{{ infrastructure_results.resources[0].status.apiServerURL }}"
+      ssl_ca_cert: "{{ sa_secret_results.resources[0].data['ca.crt'] | ansible.builtin.b64decode }}"
+      verify_ssl: true
+    name: "{{ aap_hub_credential_name }}"
+    organization: "{{ aap_hub_credential_org }}"
+
+# awx.awx.token is not idempotent, query for existing token first
+- name: Query AAP for Existing Admin Tokens
+  ansible.builtin.uri:
+    force_basic_auth: true
+    method: GET
+    password: "{{ aap_admin_password }}"
+    return_content: true
+    url: "https://{{ aap_route }}/api/v2/tokens/"
+    user: "{{ aap_admin_user }}"
+    validate_certs: true
+  register: token_list_results
+
+- name: Debug token_list_results
+  ansible.builtin.debug:
+    var: token_list_results
+
+- name: Setup Admin Token
+  when:
+    - token_list_results.json.count is defined
+    - token_list_results.json.count == 0
+  block:
+    - name: Create Admin Token
+      awx.awx.token:
+        controller_host: "{{ aap_route }}"
+        controller_password: "{{ aap_admin_password }}"
+        controller_username: admin
+        description: Token for AnsibleJob spawned by ACM
+        scope: write
+        state: present
+        validate_certs: true
+      register: token_results
+
+    - name: Debug token_results
+      ansible.builtin.debug:
+        var: token_results
+
+    - name: Create AAP Credential in ACM
+      kubernetes.core.k8s:
+        api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+        ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        host: https://kubernetes.default.svc
+        resource_definition:
+          apiVersion: v1
+          data:
+            host: "{{ aap_url | ansible.builtin.b64encode }}"
+            token: "{{ token_results.ansible_facts.controller_token.token | ansible.builtin.b64encode }}"
+          kind: Secret
+          metadata:
+            annotations:
+              reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+            labels:
+              cluster.open-cluster-management.io/credentials: ""
+              cluster.open-cluster-management.io/type: ans
+            name: aap
+            namespace: aap
+          type: Opaque
+        state: present
+      vars:
+        aap_url: "https://{{ aap_route }}"

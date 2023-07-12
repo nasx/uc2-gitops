@@ -1,6 +1,8 @@
-- name: Ansible Automation Platform Bootstrap
-  become: no
-  gather_facts: no
+- name: Ansible Automation Platform Bootstrap and Configuration
+  become: false
+  gather_facts: false
   hosts: localhost
   roles:
-    - name: aap-bootstrap
+    - role: aap-setup-auth
+    - role: aap-bootstrap
+    - role: aap-config

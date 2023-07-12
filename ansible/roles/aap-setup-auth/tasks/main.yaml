@@ -1,0 +1,20 @@
+- name: Query Automation Controller Route
+  kubernetes.core.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    name: "{{ aap_route_name }}"
+    namespace: "{{ aap_namespace }}"
+  register: aap_route_results
+
+- name: Query Automation Controller Credentials
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ aap_admin_secret_name }}"
+    namespace: "{{ aap_namespace }}"
+  register: aap_admin_secret_results
+
+- name: Set Facts
+  ansible.builtin.set_fact:
+    aap_admin_password: "{{ aap_admin_secret_results.resources[0].data.password | b64decode }}"
+    aap_route: "{{ aap_route_results.resources[0].spec.host }}"
