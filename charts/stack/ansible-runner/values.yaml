@@ -14,10 +14,15 @@ rbac:
         - apiGroups:
             - "*"
           resources:
-            - pods
-            - services
-            - secrets
+            - clusterrole
+            - clusterrolebinding
             - configmaps
+            - pods
+            - role
+            - rolebinding
+            - secrets
+            - serviceaccounts
+            - services
           verbs:
             - "*"
         - apiGroups:
@@ -46,11 +51,11 @@ rbac:
           resources:
             - deployments
           verbs:
-            - list
             - get
-            - watch
-            - update
+            - list
             - patch
+            - update
+            - watch
         - apiGroups:
             - config.openshift.io
           resources:
@@ -76,8 +81,8 @@ rbac:
           resources:
             - routes
           verbs:
-            - list
             - get
+            - list
             - watch
         - apiGroups:
             - console.openshift.io
