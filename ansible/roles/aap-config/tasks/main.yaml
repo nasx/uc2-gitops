@@ -181,6 +181,7 @@
     name: "{{ item.name }}"
     organization: "{{ item.organization }}"
     pull: "{{ item.pull }}"
+    validate_certs: false
   loop: "{{ automation_platform.execution_environments }}"
 
 - name: Create Hub Cluster Credential
@@ -197,6 +198,7 @@
       verify_ssl: true
     name: "{{ aap_hub_credential_name }}"
     organization: "{{ aap_hub_credential_org }}"
+    validate_certs: false
 
 # awx.awx.token is not idempotent, query for existing token first
 - name: Query AAP for Existing Admin Tokens
