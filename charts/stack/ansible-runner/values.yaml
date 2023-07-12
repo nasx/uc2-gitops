@@ -14,8 +14,8 @@ rbac:
         - apiGroups:
             - "*"
           resources:
-            - clusterrole
-            - clusterrolebinding
+            - clusterroles
+            - clusterrolebindings
             - configmaps
             - pods
             - role
