@@ -1,0 +1,26 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: prod-so2-ingress
+policyDefaults:
+  complianceType: musthave
+  namespace: management-stack-gitops
+  placement:
+    clusterSelector:
+      matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - prod-so2
+      - key: vendor
+        operator: In
+        values:
+          - OpenShift
+      - key: local-cluster
+        operator: DoesNotExist
+policies:
+  - manifests:
+      - path: prod-so2-default-ingress-controller.yaml
+      - path: wildcard-cert-sealed.yaml
+    name: prod-so2-ingress
+    remediationAction: enforce
