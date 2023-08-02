@@ -112,6 +112,21 @@ application-manager:
                     operatorgroup:
                       clusterScope: true
                       create: false
+          # Deploy GroupSync
+          group-sync:
+            name: group-sync
+            path: charts/group-sync
+            annotations:
+              argocd.argoproj.io/sync-wave: "2"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
           # Deploy RBAC
           rbac:
             name: rbac

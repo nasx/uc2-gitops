@@ -1,0 +1,44 @@
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: GroupSync
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: ldap-group-sync
+  namespace: group-sync-operator
+spec:
+  providers:
+  - ldap:
+      whitelist:
+        - cn=stack-admins,cn=groups,cn=accounts,dc=lab,dc=uc2,dc=io
+      ca:
+        kind: ConfigMap
+        name: group-sync-ldap-bind-ca
+        namespace: group-sync-operator
+        key: ca.crt
+      credentialsSecret:
+        name: group-sync-ldap-bind-secret
+        namespace: group-sync-operator
+      insecure: false
+      prune: true
+      rfc2307:
+        groupMembershipAttributes:
+        - member
+        groupNameAttributes:
+        - cn
+        groupUIDAttribute: dn
+        groupsQuery:
+          baseDN: cn=groups,cn=accounts,dc=lab,dc=uc2,dc=io
+          derefAliases: never
+          filter: (objectClass=groupofnames)
+          scope: sub
+        tolerateMemberNotFoundErrors: true
+        tolerateMemberOutOfScopeErrors: true
+        userNameAttributes:
+        - cn
+        userUIDAttribute: dn
+        usersQuery:
+          baseDN: cn=users,cn=accounts,dc=lab,dc=uc2,dc=io
+          derefAliases: never
+          scope: sub
+      url: ldap://idm1.lab.uc2.io:389
+    name: ldap
