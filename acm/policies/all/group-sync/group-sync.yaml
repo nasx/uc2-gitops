@@ -7,6 +7,7 @@ spec:
   providers:
   - ldap:
       whitelist:
+        - cn=developers,cn=groups,cn=accounts,dc=lab,dc=uc2,dc=io
         - cn=stack-admins,cn=groups,cn=accounts,dc=lab,dc=uc2,dc=io
       ca:
         kind: ConfigMap
