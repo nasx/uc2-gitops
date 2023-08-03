@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+    app: microcert
+  name: microcert
+  namespace: microcert
+spec:
+  ports:
+    - name: pywsgi
+      port: 5000
+      protocol: TCP
+      targetPort: pywsgi
+  selector:
+    app: microcert

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: microcert
+  namespace: microcert
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microcert
+  template:
+    metadata:
+      labels:
+        app: microcert
+    spec:
+      containers:
+        - command: ["python", "app.py", "-c", "/etc/microcert/config/ca.crt", "-k", "/etc/microcert/config/ca.key", "-t", "/etc/microcert/config/token"]
+          image: quay.io/nasx/microcert:latest
+          name: pywsgi
+          ports:
+            - containerPort: 5000
+              name: pywsgi
+          volumeMounts:
+            - mountPath: /etc/microcert/config
+              name: config-volume
+      volumes:
+        - name: config-volume
+          secret:
+            secretName: config
