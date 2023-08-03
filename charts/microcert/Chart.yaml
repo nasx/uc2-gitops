@@ -5,7 +5,7 @@ dependencies:
     repository: file://../common
   - name: sealed-secret
     version: 0.1.0
-    repository: file://../../sealed-secret
+    repository: file://../sealed-secret
 description: TLS Certificates on Demand
 name: microcert
 type: application
