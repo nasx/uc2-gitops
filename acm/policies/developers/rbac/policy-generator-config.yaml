@@ -1,0 +1,38 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: developers-rbac
+policyDefaults:
+  complianceType: musthave
+  namespace: acm-policies
+  placement:
+    clusterSelector:
+      matchExpressions:
+        - key: cluster.open-cluster-management.io/clusterset
+          operator: In
+          values:
+            - dev-cluster-pool
+        - key: vendor
+          operator: In
+          values:
+            - OpenShift
+        - key: local-cluster
+          operator: DoesNotExist
+policies:
+  - complianceType: musthave
+    manifests:
+      - path: myapp-dev-project-admin.yaml
+      - path: myapp-qa-project-admin.yaml
+      - path: myapp-stage-project-admin.yaml
+    name: developers-rbac-project-admin
+    remediationAction: enforce
+  - complianceType: mustnothave
+    manifests:
+      - path: self-provisioner.yaml
+    name: developers-rbac-remove-self-provisioner
+    remediationAction: enforce
+  - complianceType: musthave
+    manifests:
+      - path: stack-admins-group-cluster-admin.yaml
+    name: stack-admins-group-cluster-admin
+    remediationAction: enforce

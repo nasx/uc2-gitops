@@ -1,0 +1,28 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: developers-devspaces
+policyDefaults:
+  complianceType: musthave
+  namespace: acm-policies
+  placement:
+    clusterSelector:
+      matchExpressions:
+        - key: cluster.open-cluster-management.io/clusterset
+          operator: In
+          values:
+            - dev-cluster-pool
+        - key: vendor
+          operator: In
+          values:
+            - OpenShift
+        - key: local-cluster
+          operator: DoesNotExist
+policies:
+  - complianceType: musthave
+    manifests:
+      - path: checluster.yaml
+      - path: namespace.yaml
+      - path: subscription.yaml
+    name: developers-devspaces
+    remediationAction: enforce
