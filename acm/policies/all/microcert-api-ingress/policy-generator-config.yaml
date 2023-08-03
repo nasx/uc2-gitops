@@ -1,0 +1,26 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: microcert-api-ingress
+policyDefaults:
+  complianceType: musthave
+  namespace: ansible-runner
+  placement:
+    clusterSelector:
+      matchExpressions:
+        - key: vendor
+          operator: In
+          values:
+            - OpenShift
+        - key: local-cluster
+          operator: DoesNotExist
+policies:
+  - manifests:
+      - path: clusterrolebinding.yaml
+      - path: clusterrole.yaml
+      - path: job.yaml
+      - path: microcert-token-sealed.yaml
+      - path: namespace.yaml
+      - path: serviceaccount.yaml
+    name: microcert-api-ingress
+    remediationAction: enforce

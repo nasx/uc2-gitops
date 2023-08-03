@@ -1,0 +1,139 @@
+- name: Configure API/Ingress Certificates Using Microcert
+  become: false
+  hosts: localhost
+  module_defaults:
+    kubernetes.core.k8s_info:
+      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      host: https://kubernetes.default.svc
+    kubernetes.core.k8s:
+      api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+      ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      host: https://kubernetes.default.svc
+  tasks:
+    - name: Query Lock
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: ConfigMap
+        name: microcert-lock
+        namespace: ansible-runner
+      register: microcert_lock_results
+
+    - name: Apply Configuration
+      when:
+        - microcert_lock_results.resources | count == 0
+      block:
+        - name: Load Token from Secret
+          ansible.builtin.set_fact:
+            token: "{{ lookup('file', '/etc/microcert/config/token') }}"
+
+        - name: Query OpenShift Infrastructure Resource for API Server URL
+          kubernetes.core.k8s_info:
+            api_version: config.openshift.io/v1
+            kind: Infrastructure
+            name: cluster
+          register: infrastructure_results
+
+        - name: Query Default IngressController for DNS
+          kubernetes.core.k8s_info:
+            api_version: operator.openshift.io/v1
+            kind: IngressController
+            name: default
+            namespace: openshift-ingress-operator
+          register: ingresscontroller_results
+
+        - name: Set DNS Facts
+          ansible.builtin.set_fact:
+            api_dns: "{{ infrastructure_results.resources[0].status.apiServerURL | ansible.builtin.regex_search('https://(.*):6443', '\\1') }}"
+            ingress_dns: "*.{{ ingresscontroller_results.resources[0].status.domain }}"
+
+        - name: Request Certificates from Microcert
+          ansible.builtin.uri:
+            body:
+              common_name: "{{ item }}"
+              country_name: US
+              locality_name: Northern Virginia
+              organizational_unit_name: UC2 Compute Cloud
+              organization_name: UC2 PKI
+              state_or_provice_name: Virginia
+            body_format: json
+            ca_path: /etc/microcert/config/ca.crt
+            headers:
+              Token: "{{ token }}"
+            method: POST
+            url: https://microcert.apps.alice.lab.uc2.io/api/certificate
+          register: microcert_results
+          with_items:
+            - "{{ api_dns }}"
+            - "{{ ingress_dns }}"
+
+        - name: Build TLS Certificate Payloads
+          ansible.builtin.set_fact:
+            api_certificate: "{{ microcert_results.results[0].json['tls.crt'] + microcert_results.results[0].json['ca.crt'] }}"
+            ingress_certificate: "{{ microcert_results.results[1].json['tls.crt'] + microcert_results.results[1].json['ca.crt'] }}"
+
+        - name: Create Ingress TLS Secret
+          kubernetes.core.k8s:
+            resource_definition:
+              apiVersion: v1
+              data:
+                tls.crt: "{{ ingress_certificate | ansible.builtin.b64encode }}"
+                tls.key: "{{ microcert_results.results[1].json['tls.key'] | ansible.builtin.b64encode }}"
+              kind: Secret
+              metadata:
+                name: microcert-ingress-tls-keypair
+                namespace: openshift-ingress
+              type: kubernetes.io/tls
+            state: present
+
+        - name: Create API TLS Secret
+          kubernetes.core.k8s:
+            resource_definition:
+              apiVersion: v1
+              data:
+                tls.crt: "{{ api_certificate | ansible.builtin.b64encode }}"
+                tls.key: "{{ microcert_results.results[0].json['tls.key'] | ansible.builtin.b64encode }}"
+              kind: Secret
+              metadata:
+                name: microcert-api-tls-keypair
+                namespace: openshift-config
+              type: kubernetes.io/tls
+            state: present
+
+        - name: Patch Ingress Controller
+          kubernetes.core.k8s:
+            api_version: operator.openshift.io/v1
+            definition:
+              spec:
+                defaultCertificate:
+                  name: microcert-ingress-tls-keypair
+            kind: IngressController
+            name: default
+            namespace: openshift-ingress-operator
+            state: patched
+
+        - name: Patch APIServer
+          kubernetes.core.k8s:
+            api_version: config.openshift.io/v1
+            apply: true
+            kind: APIServer
+            name: cluster
+            definition:
+              spec:
+                servingCerts:
+                  namedCertificates:
+                    - names: "{{ api_dns | list }}"
+                      servingCertificate:
+                        name: microcert-api-tls-keypair
+            state: patched
+
+        - name: Create Lock
+          kubernetes.core.k8s:
+            resource_definition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: microcert-lock
+                namespace: ansible-runner
+              data: {}
+            state: present

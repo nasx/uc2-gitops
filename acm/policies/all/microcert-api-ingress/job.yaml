@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    run: microcert-api-ingress
+  name: microcert-api-ingress
+  namespace: ansible-runner
+spec:
+  template:
+    spec:
+      activeDeadlineSeconds: 600
+      containers:
+        - image: quay.io/nasx/gitops-ansible-runner:latest
+          env:
+            - name: GIT_DIRECTORY
+              value: /tmp/git/management-stack-gitops
+            - name: GIT_URL
+              value: https://github.com/nasx/uc2-gitops.git
+            - name: ANSIBLE_PLAYBOOK
+              value: ansible/playbooks/microcert-api-ingress.yaml
+            - name: ANSIBLE_CONFIG
+              value: "$GIT_DIRECTORY/ansible/ansible.cfg"
+          command:
+            - /bin/bash
+            - -c
+            - |
+              mkdir -p $GIT_DIRECTORY
+              git clone $GIT_URL $GIT_DIRECTORY
+              ansible-galaxy collection install -r $GIT_DIRECTORY/ansible/collections/requirements.yaml
+              ansible-playbook $GIT_DIRECTORY/$ANSIBLE_PLAYBOOK
+          imagePullPolicy: Always
+          name: ansible-runner
+          volumeMounts:
+            - name: microcert-token
+              mountPath: "/etc/microcert/config"
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccount: microcert
+      serviceAccountName: microcert
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: microcert-token
+          secret:
+            secretName: microcert-token
