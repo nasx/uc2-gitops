@@ -1,0 +1,26 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: group-sync-deployment
+policyDefaults:
+  complianceType: musthave
+  namespace: group-sync-operator
+  placement:
+    clusterSelector:
+      matchExpressions:
+        - key: vendor
+          operator: In
+          values:
+            - OpenShift
+        - key: local-cluster
+          operator: DoesNotExist
+policies:
+  - manifests:
+      - path: group-sync-ldap-bind-ca.yaml
+      - path: group-sync-ldap-bind-secret-sealed.yaml
+      - path: group-sync.yaml
+      - path: namespace.yaml
+      - path: operatorgroup.yaml
+      - path: subscription.yaml
+    name: group-sync-deployment
+    remediationAction: enforce

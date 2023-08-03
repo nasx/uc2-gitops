@@ -1,0 +1,21 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: sealed-secrets-deployment
+policyDefaults:
+  complianceType: musthave
+  namespace: sealed-secrets
+  placement:
+    clusterSelector:
+      matchExpressions:
+        - key: vendor
+          operator: In
+          values:
+            - OpenShift
+        - key: local-cluster
+          operator: DoesNotExist
+policies:
+  - manifests:
+      - path: sealed-secrets-deployment.yaml
+    name: sealed-secrets-deployment
+    remediationAction: enforce
