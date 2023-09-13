@@ -1,33 +1,33 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  {{- if $.Values.presync_job_annotations }}
+  {{- if $.Values.logging_presync_job_annotations }}
   annotations:
-    {{- tpl (toYaml $.Values.presync_job_annotations) $ | nindent 4 }}
+    {{- tpl (toYaml $.Values.logging_presync_job_annotations) $ | nindent 4 }}
   {{- end }}
   labels:
-    run: {{ $.Values.presync_job_name }}
+    run: {{ $.Values.logging_presync_job_name }}
     {{- include "common.labels.labels" $ | nindent 4 }}
-  {{- if $.Values.presync_job_labels }}
-    {{- tpl (toYaml $.Values.presync_job_labels) $ | nindent 4 }}
+  {{- if $.Values.logging_presync_job_labels }}
+    {{- tpl (toYaml $.Values.logging_presync_job_labels) $ | nindent 4 }}
   {{- end }}
-  name: {{ $.Values.presync_job_name }}
-  namespace: {{ $.Values.presync_job_namespace }}
+  name: {{ $.Values.logging_presync_job_name }}
+  namespace: {{ $.Values.logging_presync_job_namespace }}
 spec:
   template:
     spec:
-      activeDeadlineSeconds: {{ $.Values.presync_job_active_deadline_seconds }}
+      activeDeadlineSeconds: {{ $.Values.logging_presync_job_active_deadline_seconds }}
       containers:
-        - image: {{ $.Values.presync_job_image }}
+        - image: {{ $.Values.logging_presync_job_image }}
           env:
             - name: GIT_DIRECTORY
-              value: "{{ $.Values.presync_job_git_directory }}"
+              value: "{{ $.Values.logging_presync_job_git_directory }}"
             - name: GIT_URL
-              value: "{{ $.Values.presync_job_git_url }}"
+              value: "{{ $.Values.logging_presync_job_git_url }}"
             - name: ANSIBLE_PLAYBOOK
-              value: "{{ $.Values.presync_job_ansible_playbook }}"
+              value: "{{ $.Values.logging_presync_job_ansible_playbook }}"
             - name: ANSIBLE_CONFIG
-              value: "{{ $.Values.presync_job_ansible_config }}"
+              value: "{{ $.Values.logging_presync_job_ansible_config }}"
           command:
             - /bin/bash
             - -c
@@ -44,6 +44,6 @@ spec:
           name: ansible-runner
       dnsPolicy: ClusterFirst
       restartPolicy: OnFailure
-      serviceAccount: {{ $.Values.presync_job_serviceaccount }}
-      serviceAccountName: {{ $.Values.presync_job_serviceaccount }}
+      serviceAccount: {{ $.Values.logging_presync_job_serviceaccount }}
+      serviceAccountName: {{ $.Values.logging_presync_job_serviceaccount }}
       terminationGracePeriodSeconds: 30
