@@ -1,0 +1,8 @@
+---
+logging_obc_annotations:
+  argocd.argoproj.io/compare-options: IgnoreExtraneous
+  argocd.argoproj.io/hook: PreSync
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+logging_obc_name: logging-obc
+logging_obc_namespace: openshift-logging
+logging_obc_generate_bucket_name: logging

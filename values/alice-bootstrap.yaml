@@ -38,6 +38,12 @@ application-manager:
                     openshift.io/display-name: Red Hat CoP Group Sync Operator
                   labels:
                     openshift.io/cluster-monitoring: "true"
+                - name: openshift-operators-redhat
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
+                - name: openshift-logging
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
                 - name: microcert
                   annotations:
                     openshift.io/description: TLS Certificates on Demand
@@ -94,6 +100,38 @@ application-manager:
                       installPlanApproval: Automatic
                       name: group-sync-operator
                       source: community-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: false
+                      create: true
+                loki-operator:
+                  name: loki-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-operators-redhat
+                  values:
+                    operator:
+                      channel: stable-5.7
+                      installPlanApproval: Automatic
+                      name: loki-operator
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: true
+                cluster-logging-operator:
+                  name: cluster-logging-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-logging
+                  values:
+                    operator:
+                      channel: stable-5.7
+                      installPlanApproval: Automatic
+                      name: cluster-logging
+                      source: redhat-operators
                       sourceNamespace: openshift-marketplace
                     operatorgroup:
                       clusterScope: false
