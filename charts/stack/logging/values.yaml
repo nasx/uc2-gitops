@@ -10,6 +10,20 @@ logging_obc_generate_bucket_name: logging
 logging_obc_name: logging-obc
 logging_obc_namespace: openshift-logging
 
+# LokiStack Configuration
+
+lokistack_name: logging-loki
+lokistack_namespace: openshift-logging
+lokistack_tenants:
+  mode: openshift-logging
+lokistack_management_state: Managed
+lokistack_storage_secret_name: loki-s3
+lokistack_storage_secret_type: s3
+lokistack_storage_tls_ca_name: openshift-service-ca.crt
+lokistack_storage_tls_ca_key: service-ca.crt
+lokistack_size: 1x.small
+lokistack_storageclass_name: odf-storagecluster-ceph-rbd
+
 # Values for Logging PreSync Job
 logging_presync_job_active_deadline_seconds: 600
 logging_presync_job_annotations:
