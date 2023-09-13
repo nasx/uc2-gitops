@@ -559,6 +559,13 @@ application-manager:
                   destinationNamespace: ansible-runner
                   values:
                     ansible_runner_debug_pod: "false"
+                # Deploy OpenShift Cluster Logging
+                logging:
+                  name: logging
+                  path: charts/stack/logging
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "5"
+                  destinationNamespace: openshift-logging
                 # Deploy OpenShift Data Foundation
                 odf:
                   name: odf
