@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  {{- if $.Values.presync_job_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.presync_job_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    run: {{ $.Values.presync_job_name }}
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.presync_job_labels }}
+    {{- tpl (toYaml $.Values.presync_job_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.presync_job_name }}
+  namespace: {{ $.Values.presync_job_namespace }}
+spec:
+  template:
+    spec:
+      activeDeadlineSeconds: {{ $.Values.presync_job_active_deadline_seconds }}
+      containers:
+        - image: {{ $.Values.presync_job_image }}
+          env:
+            - name: GIT_DIRECTORY
+              value: "{{ $.Values.presync_job_git_directory }}"
+            - name: GIT_URL
+              value: "{{ $.Values.presync_job_git_url }}"
+            - name: ANSIBLE_PLAYBOOK
+              value: "{{ $.Values.presync_job_ansible_playbook }}"
+            - name: ANSIBLE_CONFIG
+              value: "{{ $.Values.presync_job_ansible_config }}"
+          command:
+            - /bin/bash
+            - -c
+            - |
+              mkdir -p $GIT_DIRECTORY
+              git clone $GIT_URL $GIT_DIRECTORY
+              ansible-galaxy collection install -r $GIT_DIRECTORY/ansible/collections/requirements.yaml
+              ansible-playbook $GIT_DIRECTORY/$ANSIBLE_PLAYBOOK \
+                -e logging_loki_s3_secret_name={{ $.Values.logging_loki_s3_secret_name }} \
+                -e logging_loki_s3_secret_namespace={{ $.Values.logging_loki_s3_secret_namespace }} \
+                -e logging_obc_name={{ $.Values.logging_obc_name }} \
+                -e logging_obc_namespace={{ $.Values.logging_obc_namespace }}
+          imagePullPolicy: Always
+          name: ansible-runner
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccount: {{ $.Values.presync_job_serviceaccount }}
+      serviceAccountName: {{ $.Values.presync_job_serviceaccount }}
+      terminationGracePeriodSeconds: 30

@@ -1,0 +1,7 @@
+- name: Initialize OpenShift Logging Deployment
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: logging-init
+ 
