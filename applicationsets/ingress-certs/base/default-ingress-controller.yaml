@@ -17,6 +17,3 @@ spec:
   httpErrorCodePages:
     name: ""
   replicas: 3
-  tuningOptions:
-    reloadInterval: 0s
-  unsupportedConfigOverrides: null
