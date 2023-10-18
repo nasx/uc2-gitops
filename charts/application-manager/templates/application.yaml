@@ -2,7 +2,7 @@
 {{- range $chartName, $chart := .Values.charts }}
 {{- if not $chart.disabled }}
 ---
-apiVersion: argoproj.io/v1beta1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
 {{- if $chart.annotations }}
