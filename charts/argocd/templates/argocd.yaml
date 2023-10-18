@@ -18,15 +18,16 @@ spec:
     sharding:
       enabled: true
       replicas: 3
-  dex:
-    openShiftOAuth: true
-    resources:
-      limits:
-        cpu: 500m
-        memory: 256Mi
-      requests:
-        cpu: 250m
-        memory: 128Mi
+  sso:
+    dex:
+      openShiftOAuth: true
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
   grafana:
     enabled: false
     ingress:
@@ -72,21 +73,15 @@ spec:
       requests:
         cpu: 500m
         memory: 512Mi
-  resourceCustomizations: |
-    route.openshift.io/Route:
-      ignoreDifferences: |
-        jsonPointers:
-        - /spec/host
-    apps/Deployment:
-      ignoreDifferences: |
-        jsonPointers:
-        - /spec/template/spec/containers/0/image
-    apps.openshift.io/DeploymentConfig:
-      ignoreDifferences: |
-        jsonPointers:
-        - /spec/template/spec/containers/0/image
-    operators.coreos.com/InstallPlan:
-      health.lua: |
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      kinds:
+      - PipelineRun
+  resourceHealthChecks:
+    - group: operators.coreos.com
+      kind: InstallPlan
+      check: |
         hs = {}
         if obj.status ~= nil then
           if obj.status.phase ~= nil then
@@ -100,8 +95,9 @@ spec:
         hs.status = "Progressing"
         hs.message = "Waiting for InstallPlan to complete"
         return hs
-    operators.coreos.com/Subscription:
-      health.lua: |
+    - group: operators.coreos.com
+      kind: Subscription
+      check: |
         hs = {}
         if obj.status ~= nil then
           if obj.status.currentCSV ~= nil and (obj.status.state == "AtLatestKnown" or obj.status.state == "UpgradeAvailable" or obj.status.state == "UpgradePending") then
@@ -113,11 +109,23 @@ spec:
         hs.status = "Progressing"
         hs.message = "Waiting for Subscription to complete."
         return hs
-  resourceExclusions: |
-    - apiGroups:
-      - tekton.dev
-      kinds:
-      - PipelineRun
+  resourceIgnoreDifferences:
+    resourceIdentifiers:
+      - group: route.openshift.io
+        kind: Route
+        customization:
+          jsonPointers:
+            - /spec/host
+      - group: apps
+        kind: Deployment
+        customization:
+          jsonPointers:
+            - /spec/template/spec/containers/0/image
+      - group: route.openshift.io
+        kind: Routeapps.openshift.io
+        customization:
+          jsonPointers:
+            - /spec/template/spec/containers/0/image
   server:
     autoscale:
       enabled: false
