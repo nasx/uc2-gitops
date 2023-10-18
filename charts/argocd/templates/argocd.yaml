@@ -121,8 +121,8 @@ spec:
         customization:
           jsonPointers:
             - /spec/template/spec/containers/0/image
-      - group: route.openshift.io
-        kind: Routeapps.openshift.io
+      - group: apps.openshift.io
+        kind: DeploymentConfig
         customization:
           jsonPointers:
             - /spec/template/spec/containers/0/image
