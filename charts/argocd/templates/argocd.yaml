@@ -28,6 +28,7 @@ spec:
         requests:
           cpu: 250m
           memory: 128Mi
+    provider: dex
   grafana:
     enabled: false
     ingress:
