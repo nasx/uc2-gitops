@@ -122,7 +122,7 @@ bootstrap:
       metadata:
         name: r440-2-ssd-local
       parameters:
-        datastoreurl: ds:///vmfs/volumes/641dd25e-4c17b2e8-432a-2cea7f502a8a/
+        datastoreurl: ds:///vmfs/volumes/65315638-bac9d660-0f29-98039b2bb748/
       provisioner: csi.vsphere.vmware.com
       reclaimPolicy: Delete
       volumeBindingMode: WaitForFirstConsumer
@@ -132,7 +132,7 @@ bootstrap:
       metadata:
         name: r440-1-ssd-local
       parameters:
-        datastoreurl: ds:///vmfs/volumes/63bc4013-bf342510-a510-4cd98fc60816/
+        datastoreurl: ds:///vmfs/volumes/6531b550-d1d3dc84-1f3e-98039b0ecefa/
       provisioner: csi.vsphere.vmware.com
       reclaimPolicy: Delete
       volumeBindingMode: WaitForFirstConsumer
