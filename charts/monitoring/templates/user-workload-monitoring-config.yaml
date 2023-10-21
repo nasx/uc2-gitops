@@ -1,0 +1,32 @@
+{{- if eq $.Values.user_workload_monitoring true }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-workload-monitoring-config
+  namespace: openshift-user-workload-monitoring
+data:
+  config.yaml: |
+    prometheus: 
+      nodeSelector:
+        {{ $.Values.uwm_node_selector_key }}: {{ $.Values.uwm_node_selector_value | quote }}
+      volumeClaimTemplate:
+       spec:
+         storageClassName: {{ $.Values.uwm_storage_class }}
+         volumeMode: Filesystem
+         resources:
+           requests:
+             storage: {{ $.Values.uwm_storage_size }}
+    prometheusOperator:
+      nodeSelector:
+        {{ $.Values.uwm_node_selector_key }}: {{ $.Values.uwm_node_selector_value | quote }}
+    thanosRuler:
+      nodeSelector:
+        {{ $.Values.uwm_node_selector_key }}: {{ $.Values.uwm_node_selector_value | quote }}
+      volumeClaimTemplate:
+       spec:
+         storageClassName: {{ $.Values.uwm_thanos_storage_class }}
+         volumeMode: Filesystem
+         resources:
+           requests:
+             storage: {{ $.Values.uwm_thanos_storage_size }}
+{{- end }}

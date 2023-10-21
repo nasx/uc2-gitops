@@ -1,6 +1,14 @@
 ---
+alertmanager_storage_class: thin-csi
+alertmanager_storage_size: 5Gi
 monitoring_node_selector_key: node-role.kubernetes.io/infra
 monitoring_node_selector_value: ""
 monitoring_storage_class: thin-csi
-monitoring_storage_size: 50Gi
+monitoring_storage_size: 25Gi
 user_workload_monitoring: true
+uwm_node_selector_key: node-role.kubernetes.io/infra
+uwm_node_selector_value: ""
+uwm_storage_class: thin-csi
+uwm_storage_size: 5Gi
+uwm_thanos_storage_class: thin-csi
+uwm_thanos_storage_size: 25Gi

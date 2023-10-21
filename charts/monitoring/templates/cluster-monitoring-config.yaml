@@ -10,6 +10,28 @@ data:
     {{- if eq $.Values.user_workload_monitoring true }}
     enableUserWorkload: true
     {{- end }}
+    alertmanagerMain:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+      volumeClaimTemplate:
+       spec:
+         storageClassName: {{ $.Values.alertmanager_storage_class }}
+         volumeMode: Filesystem
+         resources:
+           requests:
+             storage: {{ $.Values.alertmanager_storage_size }}
+    grafana:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    k8sPrometheusAdapter:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    kubeStateMetrics:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
+    openshiftStateMetrics:
+      nodeSelector:
+        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
     prometheusK8s: 
       nodeSelector:
         {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
@@ -20,25 +42,10 @@ data:
          resources:
            requests:
              storage: {{ $.Values.monitoring_storage_size }}
-    alertmanagerMain:
-      nodeSelector:
-        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
     prometheusOperator:
       nodeSelector:
         {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
-    grafana:
-      nodeSelector:
-        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
-    k8sPrometheusAdapter:
-      nodeSelector:
-        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
-    kubeStateMetrics:
-      nodeSelector:
-        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
     telemeterClient:
-      nodeSelector:
-        {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
-    openshiftStateMetrics:
       nodeSelector:
         {{ $.Values.monitoring_node_selector_key }}: {{ $.Values.monitoring_node_selector_value | quote }}
     thanosQuerier:
