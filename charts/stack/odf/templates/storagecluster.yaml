@@ -17,6 +17,7 @@ metadata:
   namespace: {{ $.Values.storagecluster_namespace }}
 spec:
   arbiter: {}
+  enableCephTools: {{ $.Values.storagecluster_enablecephtools | quote }}
   encryption:
     kms: {}
   externalStorage: {}
@@ -27,6 +28,8 @@ spec:
     cephFilesystems: {}
     cephObjectStoreUsers: {}
     cephObjectStores: {}
+  mgr:
+    enableActivePassive: {{ $.Values.storagecluster_mgr_enableactivepassive | quote }}
   mirroring: {}
   {{- if eq $.Values.storagecluster_use_localstorage "true" }}
   monDataDirHostPath: /var/lib/rook
