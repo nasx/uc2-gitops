@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: InstallPlan
+metadata:
+  name: '{{ (lookup "operators.coreos.com/v1alpha1" "Subscription" "rhacs-operator" "rhacs-operator").status.installplan.name }}'
+  namespace: rhacs-operator
+spec:
+  approval: Manual
+  approved: true
