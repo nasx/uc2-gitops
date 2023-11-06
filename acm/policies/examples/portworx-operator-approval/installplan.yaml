@@ -1,0 +1,21 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: ConfigurationPolicy
+metadata:
+  name: portworx-operator-installplan
+spec:
+  remediationAction: enforce
+  severity: high
+  object-templates-raw: |
+    {{- $startingCSV := (lookup "operators.coreos.com/v1alpha1" "Subscription" "openshift-operators" "portworx-certified").spec.startingCSV -}}
+    {{- $installPlanName := (lookup "operators.coreos.com/v1alpha1" "Subscription" "openshift-operators" "portworx-certified").status.installplan.name -}}
+    {{- $clusterServiceVersionNamesJoined := (lookup "operators.coreos.com/v1alpha1" "InstallPlan" "openshift-operators" $installPlanName).spec.clusterServiceVersionNames | join "," }}
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: operators.coreos.com/v1alpha1
+        kind: InstallPlan
+        metadata:
+          name: '{{ $installPlanName }}'
+          namespace: openshift-operators
+        spec:
+          approval: Manual
+          approved: {{ contains $startingCSV $clusterServiceVersionNamesJoined }}
