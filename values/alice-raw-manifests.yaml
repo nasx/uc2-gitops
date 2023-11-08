@@ -120,6 +120,16 @@ bootstrap:
       apiVersion: storage.k8s.io/v1
       kind: StorageClass
       metadata:
+        name: r440-1-ssd-local
+      parameters:
+        datastoreurl: ds:///vmfs/volumes/6531b550-d1d3dc84-1f3e-98039b0ecefa/
+      provisioner: csi.vsphere.vmware.com
+      reclaimPolicy: Delete
+      volumeBindingMode: WaitForFirstConsumer
+    - allowVolumeExpansion: true
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
         name: r440-2-ssd-local
       parameters:
         datastoreurl: ds:///vmfs/volumes/65315638-bac9d660-0f29-98039b2bb748/
@@ -130,9 +140,9 @@ bootstrap:
       apiVersion: storage.k8s.io/v1
       kind: StorageClass
       metadata:
-        name: r440-1-ssd-local
+        name: r440-3-ssd-local
       parameters:
-        datastoreurl: ds:///vmfs/volumes/6531b550-d1d3dc84-1f3e-98039b0ecefa/
+        datastoreurl: ds:///vmfs/volumes/654a4c8a-61b0621c-f968-248a078c8bd6/
       provisioner: csi.vsphere.vmware.com
       reclaimPolicy: Delete
       volumeBindingMode: WaitForFirstConsumer
