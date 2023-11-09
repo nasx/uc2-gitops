@@ -13,4 +13,4 @@ lokistack_tenants:
   mode: openshift-network
 
 # Values for LokiStack PreSync Job
-lokistack_presync_job_name: netobserv-presync-job
+lokistack_presync_job_name: netobserv-lokistack-presync-job
