@@ -1,39 +1,39 @@
-- name: Wait for Cluster Logging OBC
+- name: Wait for LokiStack OBC
   kubernetes.core.k8s_info:
     api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
     api_version: objectbucket.io/v1alpha1
     ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     host: https://kubernetes.default.svc
     kind: ObjectBucketClaim
-    name: "{{ logging_obc_name }}"
-    namespace: "{{ logging_obc_namespace }}"
+    name: "{{ lokistack_obc_name }}"
+    namespace: "{{ lokistack_obc_namespace }}"
   register: obc
   retries: 60
   delay: 10
   until:
     - obc.resources[0].status.phase == "Bound"
 
-- name: Query Logging OBC Secret
+- name: Query LokiStack OBC Secret
   kubernetes.core.k8s_info:
     api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
     api_version: v1
     ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     host: https://kubernetes.default.svc
     kind: Secret
-    name: "{{ logging_obc_name }}"
-    namespace: "{{ logging_obc_namespace }}"
-  register: logging_obc_secret
+    name: "{{ lokistack_obc_name }}"
+    namespace: "{{ lokistack_obc_namespace }}"
+  register: lokistack_obc_secret
 
-- name: Query Logging OBC ConfigMap
+- name: Query LokiStack OBC ConfigMap
   kubernetes.core.k8s_info:
     api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
     api_version: v1
     ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     host: https://kubernetes.default.svc
     kind: ConfigMap
-    name: "{{ logging_obc_name }}"
-    namespace: "{{ logging_obc_namespace }}"
-  register: logging_obc_configmap
+    name: "{{ lokistack_obc_name }}"
+    namespace: "{{ lokistack_obc_namespace }}"
+  register: lokistack_obc_configmap
 
 - name: Create Loki S3 Secret
   kubernetes.core.k8s:
@@ -43,13 +43,13 @@
     resource_definition:
       apiVersion: v1
       data:
-        access_key_id: "{{ logging_obc_secret.resources[0].data.AWS_ACCESS_KEY_ID }}"
-        access_key_secret: "{{ logging_obc_secret.resources[0].data.AWS_SECRET_ACCESS_KEY }}"
-        bucketnames: "{{ logging_obc_configmap.resources[0].data.BUCKET_NAME | ansible.builtin.b64encode }}"
-        endpoint: "{{ logging_obc_configmap.resources[0].data.BUCKET_HOST | ansible.builtin.b64encode }}"
+        access_key_id: "{{ lokistack_obc_secret.resources[0].data.AWS_ACCESS_KEY_ID }}"
+        access_key_secret: "{{ lokistack_obc_secret.resources[0].data.AWS_SECRET_ACCESS_KEY }}"
+        bucketnames: "{{ lokistack_obc_configmap.resources[0].data.BUCKET_NAME | ansible.builtin.b64encode }}"
+        endpoint: "{{ lokistack_obc_configmap.resources[0].data.BUCKET_HOST | ansible.builtin.b64encode }}"
       kind: Secret
       metadata:
-        name: "{{ logging_loki_s3_secret_name }}"
-        namespace: "{{ logging_loki_s3_secret_namespace }}"
+        name: "{{ lokistack_s3_secret_name }}"
+        namespace: "{{ lokistack_s3_secret_namespace }}"
       type: Opaque
     state: present

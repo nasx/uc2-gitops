@@ -1,0 +1,17 @@
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  {{- if $.Values.lokistack_obc_annotations }}
+  annotations:
+    {{- tpl (toYaml $.Values.lokistack_obc_annotations) $ | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  {{- if $.Values.lokistack_obc_labels }}
+    {{- tpl (toYaml $.Values.lokistack_obc_labels) $ | nindent 4 }}
+  {{- end }}
+  name: {{ $.Values.lokistack_obc_name }}
+  namespace: {{ $.Values.lokistack_obc_namespace }}
+spec:
+  generateBucketName: {{ $.Values.lokistack_obc_generate_bucket_name }}
+  storageClassName: openshift-storage.noobaa.io

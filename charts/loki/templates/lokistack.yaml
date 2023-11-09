@@ -1,0 +1,29 @@
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  labels:
+    {{- include "common.labels.labels" $ | nindent 4 }}
+  name: {{ $.Values.lokistack_name }}
+  namespace: {{ $.Values.lokistack_namespace }}
+spec:
+  tenants:
+    {{- tpl (toYaml $.Values.lokistack_tenants) $ | nindent 4 }}
+  managementState: {{ $.Values.lokistack_management_state }}
+  limits:
+    global:
+      queries:
+        queryTimeout: 3m
+  storage:
+    schemas:
+      - effectiveDate: "2022-06-01"
+        version: v12
+    secret:
+      name: {{ $.Values.lokistack_storage_secret_name }}
+      type: {{ $.Values.lokistack_storage_secret_type }}
+    tls:
+      caName: {{ $.Values.lokistack_storage_tls_ca_name }}
+      caKey: {{ $.Values.lokistack_storage_tls_ca_key }}
+  hashRing:
+    type: memberlist
+  size: {{ $.Values.lokistack_size }}
+  storageClassName: {{ $.Values.lokistack_storageclass_name }}

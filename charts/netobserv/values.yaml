@@ -1,0 +1,16 @@
+---
+# General LokiStack Values
+lokistack_s3_secret_name: loki-s3
+lokistack_s3_secret_namespace: netobserv
+lokistack_obc_generate_bucket_name: netobserv
+lokistack_obc_name: netobserv-obc
+lokistack_obc_namespace: netobserv
+
+# LokiStack Configuration
+lokistack_name: netobserv-loki
+lokistack_namespace: netobserv
+lokistack_tenants:
+  mode: openshift-network
+
+# Values for LokiStack PreSync Job
+lokistack_presync_job_name: netobserv-presync-job

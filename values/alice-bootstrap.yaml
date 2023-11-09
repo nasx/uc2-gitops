@@ -38,15 +38,10 @@ application-manager:
                     openshift.io/display-name: Red Hat CoP Group Sync Operator
                   labels:
                     openshift.io/cluster-monitoring: "true"
-                - name: openshift-operators-redhat
-                  labels:
-                    openshift.io/cluster-monitoring: "true"
-                # - name: openshift-logging
-                #   labels:
-                #     openshift.io/cluster-monitoring: "true"
                 - name: microcert
                   annotations:
                     openshift.io/description: TLS Certificates on Demand
+                - name: netobserv
                 - name: patch-operator
                   annotations:
                     openshift.io/description: An operator to apply patches to Kubernetes objects in a declarative way. Provided by Red Hat CoP.
@@ -57,6 +52,15 @@ application-manager:
                   annotations:
                     openshift.io/description: Collection of service accounts and patch resources for the Patch Operator
                     openshift.io/display-name: Red Hat CoP Patch Operator Configs
+                - name: openshift-logging
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
+                - name: openshift-netobserv-operator
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
+                - name: openshift-operators-redhat
+                  labels:
+                    openshift.io/cluster-monitoring: "true"
           # Deploy Operators
           operators:
             name: operators
@@ -72,21 +76,21 @@ application-manager:
                 selfHeal: true
               charts:
                 # Operator List
-                patch-operator:
-                  name: patch-operator
+                cluster-logging-operator:
+                  name: cluster-logging-operator
                   path: charts/operator
                   annotations:
                     argocd.argoproj.io/sync-wave: "1"
-                  destinationNamespace: patch-operator
+                  destinationNamespace: openshift-logging
                   values:
                     operator:
-                      channel: alpha
+                      channel: stable-5.8
                       installPlanApproval: Automatic
-                      name: patch-operator
-                      source: community-operators
+                      name: cluster-logging
+                      source: redhat-operators
                       sourceNamespace: openshift-marketplace
                     operatorgroup:
-                      clusterScope: true
+                      clusterScope: false
                       create: true
                 group-sync-operator:
                   name: group-sync-operator
@@ -112,7 +116,7 @@ application-manager:
                   destinationNamespace: openshift-operators-redhat
                   values:
                     operator:
-                      channel: stable-5.7
+                      channel: stable-5.8
                       installPlanApproval: Automatic
                       name: loki-operator
                       source: redhat-operators
@@ -120,22 +124,38 @@ application-manager:
                     operatorgroup:
                       clusterScope: true
                       create: true
-                # cluster-logging-operator:
-                #   name: cluster-logging-operator
-                #   path: charts/operator
-                #   annotations:
-                #     argocd.argoproj.io/sync-wave: "1"
-                #   destinationNamespace: openshift-logging
-                #   values:
-                #     operator:
-                #       channel: stable-5.7
-                #       installPlanApproval: Automatic
-                #       name: cluster-logging
-                #       source: redhat-operators
-                #       sourceNamespace: openshift-marketplace
-                #     operatorgroup:
-                #       clusterScope: false
-                #       create: true
+                netobserv-operator:
+                  name: netobserv-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-netobserv-operator
+                  values:
+                    operator:
+                      channel: stable
+                      installPlanApproval: Automatic
+                      name: netobserv-operator
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: true
+                patch-operator:
+                  name: patch-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: patch-operator
+                  values:
+                    operator:
+                      channel: alpha
+                      installPlanApproval: Automatic
+                      name: patch-operator
+                      source: community-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: true
                 web-terminal-operator:
                   name: web-terminal-operator
                   path: charts/operator

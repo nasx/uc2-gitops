@@ -1,0 +1,12 @@
+apiVersion: v2
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../common
+  - name: loki
+    version: 0.1.0
+    repository: file://../loki
+description: OpenShift Network Observability Deployment
+name: netobserv
+type: application
+version: 0.1.0
