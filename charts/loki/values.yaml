@@ -1,7 +1,5 @@
 ---
 # General LokiStack Values
-lokistack_s3_secret_name: loki-s3
-lokistack_s3_secret_namespace: openshift-logging
 lokistack_obc_annotations:
   argocd.argoproj.io/compare-options: IgnoreExtraneous
   argocd.argoproj.io/hook: PreSync
@@ -9,6 +7,33 @@ lokistack_obc_annotations:
 lokistack_obc_generate_bucket_name: logging
 lokistack_obc_name: logging-obc
 lokistack_obc_namespace: openshift-logging
+lokistack_s3_secret_name: loki-s3
+lokistack_s3_secret_namespace: openshift-logging
+lokistack_template:
+  compactor:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+  distributor:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+  gateway:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+  indexGateway:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+  ingester:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+  querier:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+  queryFrontend:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
+  ruler:
+    nodeSelector:
+      node-role.kubernetes.io/infra: ""
 
 # LokiStack Configuration
 lokistack_name: logging-loki

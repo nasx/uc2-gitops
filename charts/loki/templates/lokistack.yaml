@@ -6,13 +6,14 @@ metadata:
   name: {{ $.Values.lokistack_name }}
   namespace: {{ $.Values.lokistack_namespace }}
 spec:
-  tenants:
-    {{- tpl (toYaml $.Values.lokistack_tenants) $ | nindent 4 }}
-  managementState: {{ $.Values.lokistack_management_state }}
+  hashRing:
+    type: memberlist
   limits:
     global:
       queries:
         queryTimeout: 3m
+  managementState: {{ $.Values.lokistack_management_state }}
+  size: {{ $.Values.lokistack_size }}
   storage:
     schemas:
       - effectiveDate: "2022-06-01"
@@ -21,9 +22,10 @@ spec:
       name: {{ $.Values.lokistack_storage_secret_name }}
       type: {{ $.Values.lokistack_storage_secret_type }}
     tls:
-      caName: {{ $.Values.lokistack_storage_tls_ca_name }}
       caKey: {{ $.Values.lokistack_storage_tls_ca_key }}
-  hashRing:
-    type: memberlist
-  size: {{ $.Values.lokistack_size }}
+      caName: {{ $.Values.lokistack_storage_tls_ca_name }}
   storageClassName: {{ $.Values.lokistack_storageclass_name }}
+  template:
+    {{- tpl (toYaml $.Values.lokistack_template) $ | nindent 4 }}
+  tenants:
+    {{- tpl (toYaml $.Values.lokistack_tenants) $ | nindent 4 }}
