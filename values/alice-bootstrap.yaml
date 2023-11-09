@@ -392,6 +392,21 @@ application-manager:
                       - key: token
                         value: AgA6Xxk/piyA0A6h6UgtSAXK40cSLy7o5NTdcKfLjV3NJ9UYz/0728qJD5u1I+oGLNOFq7LtOZxUDbsPz5I1gkDtaopnvcS7WiDQMkLX5oUPuBxz4/2hJa1S3wuAehrc6xW4LX/Zm+3LdTQ2IduVveJkia2XF1/Liv6Q27Pz6ZwD32j8MKoiR7ICZVUacblQHi3B4De6SQBAILItLV169HOKQ+3IqrztRmI5FzNLXugMZAzmSB65dLP7WU9nIGvs1Esq4bjOia7Ybb/tE4pnDmOx3fRHUn6QEy92mY0MsdIuQ+Y5XIICeYfcmD0l33pO3auDoVu1Ngf3SU3IVI1CzZKPwPEQDXcJ9DWF+owzHWKIa8hGmZqIEvnXY3T0wbdSXeHPbtfUWaEPauFhuPV7i3pjJM7En50JBRCLwN77np7M2FUvvFXcxWW66tXSx2hrPUgOsQCo4lT9hBIpuTZdzdQtvFLrrHMsPMeXYucYjjQig4GVzUE2LmX/kAmBTylI3KNv0FpfUP4HgrzDs/LYPSzTnG1iMOXkyppnYNGw1TtdwaVx0wKhMqWcoy2UtE+rWymZP9Q7y8SsamtE3jQLDItEriMh2VmdWeA2XFW6cjbuj7ojpORH95mVXEM5n6VppoSRKs8hTLK30uU/zarbJEb1LBMKVMHHm00a09/09Xeck/+kKYMDHAXSFIpG2Q66B7qwKBLyvUAU1u/XNA/WFACU1oF0Q74WOZ9XYAXY2gUpug==
                     type: Opaque
+          # Configure OpenShift Network Observability
+          netobserv:
+            name: netobserv
+            path: charts/netobserv
+            annotations:
+              argocd.argoproj.io/sync-wave: "4"
+            values:
+              common:
+                repoURL: https://github.com/nasx/uc2-gitops.git
+                targetRevision: main
+                namespace: management-stack-gitops
+                project: cluster-config
+                destinationNamespace: management-stack-gitops
+                prune: true
+                selfHeal: true
     # Management Stack Gitops
     management-stack:
       name: management-stack
