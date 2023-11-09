@@ -3,5 +3,5 @@
   gather_facts: false
   hosts: localhost
   roles:
-    - role: logging-init
+    - role: loki-init
  
