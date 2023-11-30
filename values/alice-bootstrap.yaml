@@ -523,6 +523,22 @@ application-manager:
                     operatorgroup:
                       clusterScope: false
                       create: true
+                odf-multicluster-orchestrator-operator:
+                  name: odf-multicluster-orchestrator-operator
+                  path: charts/operator
+                  annotations:
+                    argocd.argoproj.io/sync-wave: "1"
+                  destinationNamespace: openshift-operators
+                  values:
+                    operator:
+                      channel: stable-4.14
+                      installPlanApproval: Automatic
+                      name: odf-multicluster-orchestrator
+                      source: redhat-operators
+                      sourceNamespace: openshift-marketplace
+                    operatorgroup:
+                      clusterScope: true
+                      create: false
                 quay-operator:
                   name: quay-operator
                   path: charts/operator
